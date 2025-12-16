@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#72a9b7">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DebateEase | Reduce Anxiety, Practice Speaking</title>
+    <style>
+        /* Variables and Reset */
+        :root {
+            --primary-color: #72a9b7; /* Soft Blue-Green */
+            --secondary-color: #c0d9e1; /* Pale Blue */
+            --calm-color: #a3c4b2; /* Gentle Green */
+            --background-color: #f4f7f9; /* Light Grey */
+            --text-color: #333333;
+            --danger-color: #d9534f;
+            --font-family: 'Roboto', sans-serif;
+        }
+
+        /* Base Styles (Mobile-First) */
+        body {
+            font-family: var(--font-family);
+            margin: 0;
+            padding: 0;
+            background-color: var(--background-color);
+            color: var(--text-color);
+            line-height: 1.6;
+        }
+
+        .app-container {
+            max-width: 500px;
+            margin: 0 auto;
+            background-color: white;
+            min-height: 100vh;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 1.6em;
+            font-weight: 700;
+        }
+
+        /* Main Content */
+        main {
+            padding: 20px;
+            flex-grow: 1;
+            overflow-y: auto;
+        }
+
+        section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border-radius: 12px;
+            background-color: #ffffff;
+            border: 1px solid var(--secondary-color);
+        }
+
+        h2 {
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 8px;
+            margin-top: 0;
+            font-size: 1.4em;
+        }
+
+        /* Buttons and Inputs */
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 15px;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+            font-weight: 500;
+        }
+        button:active { transform: scale(0.99); }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .btn-primary:hover { background-color: #6195a3; }
+
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            color: var(--text-color);
+            margin-top: 5px;
+        }
+        .btn-secondary:hover { background-color: #b0c9d3; }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
+            font-size: 0.95em;
+        }
+
+        .input-group select, .input-group input[type="text"], .input-group input[type="number"], .input-group textarea, .input-group input[type="range"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 1em;
+        }
+        
+        .input-group input[type="range"] {
+             padding: 0;
+             height: 30px; 
+             -webkit-appearance: none;
+             background: var(--secondary-color);
+             margin-top: 10px;
+        }
+        .input-group input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--primary-color);
+            cursor: pointer;
+            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+        }
+
+        /* Toggle Switch Styling */
+        .toggle-switch {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 10px 0;
+            border-top: 1px dashed #eee;
+        }
+        
+        /* Dashboard Metrics */
+        .dashboard-metric {
+            text-align: center;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #e6f3f8; /* Very light primary color */
+            margin-bottom: 15px;
+            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05);
+        }
+        .dashboard-metric h3 { color: var(--primary-color); margin-top: 0; }
+        .graph-placeholder {
+            height: 100px;
+            background-color: #d1e5ed;
+            border-radius: 4px;
+            line-height: 100px;
+            color: #555;
+            font-style: italic;
+        }
+
+        /* Active Practice and Calming */
+        #active-calming {
+            min-height: 70vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background-color: var(--calm-color); /* Gentle Green background */
+            color: white;
+            padding: 20px;
+        }
+        #calming-visual, #countdown-display-practice {
+            font-size: 4em;
+            font-weight: 700;
+            margin: 20px 0;
+            transition: all 1.5s ease-in-out;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        .calming-state { font-size: 1.5em; margin-bottom: 40px; }
+
+        #active-practice { background-color: #f7f7f7; color: var(--text-color); }
+        #countdown-display-practice { 
+            font-size: 3em; 
+            color: var(--danger-color); 
+            text-shadow: none; /* Override white shadow */
+        }
+
+        /* Feedback Report */
+        .metric-card {
+            border: 1px solid var(--primary-color);
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 8px;
+            background-color: #f8ffff;
+        }
+        .metric-card h3 { color: #555; margin-top: 0; font-size: 1.2em; }
+        .metric-card strong { color: var(--primary-color); }
+
+        /* Navigation Bar */
+        .nav-bar {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            border-top: 1px solid var(--secondary-color);
+            background-color: white;
+            position: sticky;
+            bottom: 0;
+            z-index: 10;
+        }
+
+        .nav-bar a {
+            text-decoration: none;
+            color: var(--primary-color);
+            font-size: 0.9em;
+            padding: 5px 10px;
+            border-radius: 4px;
+            transition: background-color 0.2s;
+        }
+        .nav-bar a:hover {
+            background-color: var(--secondary-color);
+        }
+        
+        /* Modal Overlay for AI Points */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            display: none; /* Hidden by default */
+            justify-content: center;
+            align-items: center;
+            z-index: 20;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 25px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 450px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            max-height: 80vh;
+            overflow-y: auto;
+            position: relative;
+        }
+        
+        .modal-content h3 {
+            color: var(--calm-color);
+            border-bottom: 1px dashed var(--secondary-color);
+            padding-bottom: 10px;
+            margin-top: 0;
+        }
+
+        #modal-points-list {
+            list-style-type: none; 
+            padding-left: 0; 
+            font-size: 1em;
+            margin-top: 20px;
+        }
+        #modal-points-list li {
+            margin-bottom: 15px;
+            padding-left: 15px;
+            position: relative;
+        }
+        #modal-points-list li::before {
+            content: '👉'; /* Use an emoji bullet */
+            position: absolute;
+            left: 0;
+            color: var(--primary-color);
+            font-size: 0.8em;
+            top: 0;
+        }
+        
+        /* Loading Spinner */
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            border-left-color: var(--primary-color);
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<div class="app-container">
+    <header>
+        <h1>DebateEase 🧘‍♀️🎤</h1>
+    </header>
+
+    <main>
+        
+        <section id="dashboard" data-view="home">
+            <h2>📊 Performance Dashboard</h2>
+            <div class="dashboard-metric">
+                <h3>Overall Progress</h3>
+                <p>AI Score Trend: **+0.5 Points** (Last 5 Sessions)</p>
+                <div class="graph-placeholder"></div>
+            </div>
+
+            <div class="dashboard-metric">
+                <h3>Anxiety & Confidence</h3>
+                <p>Anxiety (Pre) vs. Confidence (Post)</p>
+                <div class="graph-placeholder"></div>
+            </div>
+
+            <button class="btn-primary" onclick="showView('calming-setup')">🧘‍♀️ Feeling Anxious? Start Calming</button>
+            <button class="btn-primary" onclick="showView('practice-setup')">🎤 New Practice Session</button>
+        </section>
+
+        <section id="calming-setup" style="display: none;" data-view="calming-setup">
+            <h2>🌬️ Calming Setup</h2>
+
+            <div class="input-group">
+                <label for="calming-method">Select Technique</label>
+                <select id="calming-method">
+                    <option value="box">Box Breathing (Inhale, Hold, Exhale, Hold)</option>
+                    <option value="478">4-7-8 Breathing</option>
+                    <option value="54321">Grounding (5-4-3-2-1)</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="calming-duration">Duration</label>
+                <select id="calming-duration">
+                    <option value="1">1 Minute</option>
+                    <option value="3" selected>3 Minutes</option>
+                    <option value="5">5 Minutes</option>
+                </select>
+            </div>
+
+            <div class="toggle-switch">
+                <span>Haptic Vibration (Optional)</span>
+                <input type="checkbox" id="haptic-toggle" checked>
+            </div>
+            
+            <div class="input-group">
+                <label for="pre-anxiety-calm">Anxiety Level (1-10)</label>
+                <input type="range" id="pre-anxiety-calm" min="1" max="10" value="5" oninput="document.getElementById('anxiety-output-calm').textContent=this.value">
+                <p style="text-align: center;">Current Level: <strong id="anxiety-output-calm">5</strong></p>
+            </div>
+
+            <button class="btn-primary" onclick="startCalming()">BEGIN CALMING</button>
+        </section>
+        
+        <section id="active-calming" style="display: none;" data-view="active-calming">
+            <h2 style="color: white;">✨ Focus and Breathe</h2>
+            <div id="calming-visual">INHALE</div>
+            <p class="calming-state" id="calming-instructions">Focus on the prompt.</p>
+            <div id="calming-timer" style="font-size: 1.5em;">03:00</div>
+            <button class="btn-secondary" style="width: 50%;" onclick="stopCalming()">END SESSION</button>
+        </section>
+
+
+        <section id="practice-setup" style="display: none;" data-view="practice-setup">
+            <h2>⚙️ Practice Setup</h2>
+
+            <div class="input-group">
+                <label for="practice-type">Select Mode</label>
+                <select id="practice-type">
+                    <option value="debate">Debate (Argumentative)</option>
+                    <option value="defense">Oral Defense (Explanatory/Q&A)</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <label for="topic">Topic / Question</label>
+                <input type="text" id="topic" placeholder="Enter custom topic (e.g., AI Ethics)">
+                <button class="btn-secondary" onclick="generateRandomTopic()">Generate Random Topic</sbutton>
+            </div>
+            
+            <div class="input-group" id="argument-generator">
+                <label>Argument Generation</label>
+                <button class="btn-secondary" onclick="generateArgumentPoints()">✨ Generate Debate Points (Opens Modal)</button>
+                <small style="color: #777;">**REQUIRED**: You must enter a valid Google AI API Key in the **Settings** panel for this feature to work.</small>
+            </div>
+
+
+            <div class="input-group">
+                <label for="timer-duration">Countdown Timer (Minutes)</label>
+                <input type="number" id="timer-duration" value="5" min="1" max="60">
+            </div>
+
+            <div class="toggle-switch">
+                <span>Notes Overlay</span>
+                <input type="checkbox" id="notes-toggle">
+            </div>
+            
+             <div class="input-group">
+                <label for="pre-anxiety-practice">Anxiety Level (1-10)</label>
+                <input type="range" id="pre-anxiety-practice" min="1" max="10" value="6" oninput="document.getElementById('anxiety-output-practice').textContent=this.value">
+                <p style="text-align: center;">Current Level: <strong id="anxiety-output-practice">6</strong></p>
+            </div>
+
+            <button class="btn-primary" onclick="startPractice()">START PRACTICE SESSION</button>
+        </section>
+
+        <section id="active-practice" style="display: none;" data-view="active-practice">
+            <h2>🎙️ Practice in Progress</h2>
+            <div id="countdown-display-practice">05:00</div>
+            <p>Topic: <strong id="current-topic">Loading Topic...</strong></p>
+            <div id="recording-status" style="text-align: center; color: var(--danger-color); margin: 10px 0;">
+                🔴 <span id="mic-status">Microphone is ready. Click "Stop" to finish recording.</span>
+            </div>
+            <div id="speech-transcript" style="min-height: 50px; padding: 10px; border: 1px dashed #ccc; border-radius: 6px; margin-top: 15px; font-size: 0.9em; background: #f9f9f9;">
+                **Transcript will appear here as you speak.**
+            </div>
+
+            <textarea id="notes-area" placeholder="Optional bullet-point notes here..." rows="5" style="width: 100%; margin-top: 15px; display: none;"></textarea>
+            <small style="color: var(--danger-color);">Notifications are locked during this session.</small>
+
+            <button class="btn-primary" onclick="stopPractice()">STOP / END DEFENSE</button>
+        </section>
+        
+        <section id="post-test" style="display: none;" data-view="post-test">
+            <h2>✅ Session Concluded</h2>
+            <p>Please provide a quick rating before viewing AI feedback.</p>
+            
+            <div class="input-group">
+                <label for="post-confidence">Confidence Rating (1-10)</label>
+                <input type="range" id="post-confidence" min="1" max="10" value="7" oninput="document.getElementById('confidence-output').textContent=this.value">
+                <p style="text-align: center;">Current Confidence: <strong id="confidence-output">7</strong></p>
+            </div>
+            
+            <button class="btn-primary" onclick="showFeedback()">GET AI FEEDBACK</button>
+        </section>
+
+
+        <section id="feedback-report" style="display: none;" data-view="feedback">
+            <h2>🤖 AI Feedback Report</h2>
+            <p style="color: #777; font-style: italic; border-bottom: 1px dashed #eee; padding-bottom: 10px;">AI feedback is advisory only. See the disclaimer in settings.</p>
+
+            <div id="ai-metrics">
+                
+                <div class="metric-card" id="clarity-metric-card">
+                    <h3>Clarity of Ideas: <span id="ai-clarity-score">Loading...</span></h3>
+                    <div id="ai-clarity-explanation">
+                        <div class="spinner"></div>
+                        <p style="text-align: center; color: #555;">Analyzing speech content using Google AI...</p>
+                    </div>
+                </div>
+                 
+                 <div class="metric-card">
+                    <h3>Speaking Pace: **5/5**</h3>
+                    <p><strong>Explanation:</strong> Excellent pace at 145 WPM, optimal for persuasion.</p>
+                    <p><strong>Improvement Tip:</strong> Practice slowing slightly when delivering statistics for emphasis.</p>
+                </div>
+                 <div class="metric-card">
+                    <h3>Filler Words: **2/5**</h3>
+                    <p><strong>Explanation:</strong> High frequency detected (7x 'um', 5x 'like').</p>
+                    <p><strong>Improvement Tip:</strong> Replace filler words with a deliberate, one-second silent pause.</p>
+                </div>
+            </div>
+
+            <div class="dashboard-metric">
+                <h3>Session Summary</h3>
+                <p>Pre-Anxiety: <strong id="report-anxiety"></strong>/10 | Post-Confidence: <strong id="report-confidence"></strong>/10</p>
+                <p>Total Transcript Words: <strong id="report-word-count">0</strong></p>
+            </div>
+
+            <button class="btn-secondary">Export Report (PDF)</button>
+            <button class="btn-primary" onclick="showView('dashboard')">Back to Dashboard</button>
+        </section>
+        
+        <section id="settings-panel" style="display: none;" data-view="settings">
+            <h2>🔧 Application Settings</h2>
+            <p>Manage API integration and customize AI behavior.</p>
+
+            <div class="input-group">
+                <label for="google-api-key">Google AI API Key</label>
+                <input type="text" id="google-api-key" placeholder="Enter your secure Google AI API Key here..." onchange="saveSetting('apiKey', this.value)">
+                <small style="color: #777;">Required for generating random topics and advanced AI feedback (Speech-to-Text & NLP).</small>
+            </div>
+            
+            <div class="input-group">
+                <label for="base-ai-prompt">Custom AI Personal Prompt</label>
+                <textarea id="base-ai-prompt" rows="5" placeholder="Default: 'You are a senior mobile app developer and educational technology designer specializing in student performance...'" onchange="saveSetting('aiPrompt', this.value)"></textarea>
+                <small style="color: #777;">This prompt defines the AI's role and tone for generating content and feedback.</small>
+            </div>
+            
+            <div class="input-group">
+                <label for="data-privacy-toggle">Data Storage & Privacy</label>
+                <div class="toggle-switch">
+                    <span>Store Recordings Locally Only (Research Mode)</span>
+                    <input type="checkbox" id="data-privacy-toggle" onchange="saveSetting('localOnly', this.checked)">
+                </div>
+                <small style="color: var(--danger-color);">Unchecking this sends audio data to Google APIs for processing. Ensure compliance!</small>
+            </div>
+
+            <button class="btn-primary" onclick="showView('dashboard')">Apply & Go Back</button>
+        </section>
+
+
+    </main>
+
+    <nav class="nav-bar">
+        <a href="#" onclick="showView('dashboard')">🏠 Home</a>
+        <a href="#" onclick="showView('practice-setup')">🎤 Practice</a>
+        <a href="#" onclick="showView('calming-setup')">🧘‍♀️ Calming</a>
+        <a href="#" onclick="showView('settings-panel')">🔧 Settings</a>
+    </nav>
+    
+    <div id="ai-argument-modal" class="modal-overlay" onclick="this.style.display='none'">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h3>🧠 AI-Generated Debate Points</h3>
+            <p><strong>Topic:</strong> <span id="modal-topic-title"></span></p>
+            <div id="modal-content-area">
+                <div class="spinner"></div>
+                <p style="text-align: center; color: #555;">Generating arguments. This may take a few seconds...</p>
+            </div>
+            <ul id="modal-points-list">
+                </ul>
+            <button class="btn-primary" onclick="document.getElementById('ai-argument-modal').style.display='none'">Close & Start Preparation</button>
+        </div>
+    </div>
+
+
+</div>
+
+<script>
+    let practiceTimer;
+    let calmingInterval;
+    let practiceSecondsRemaining;
+    let calmingSecondsRemaining;
+    let currentAnxiety = 0;
+    let currentConfidence = 0;
+    
+    // Web Speech API
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition;
+    let speechTranscript = ""; // Stores the final, complete transcript
+    
+    // --- Global Settings Variables ---
+    let appSettings = {
+        apiKey: '',
+        aiPrompt: "You are a senior mobile app developer and educational technology designer specializing in student performance, anxiety reduction, and AI feedback systems. Provide constructive, encouraging, and clear feedback based on debate metrics.",
+        localOnly: false 
+    };
+
+    // --- Core View Switching Logic ---
+    function showView(viewId) {
+        // Stop speech recognition when switching away from the active practice screen
+        if (viewId !== 'active-practice' && recognition) {
+            recognition.stop();
+        }
+
+        const sections = document.querySelectorAll('section[data-view]');
+        sections.forEach(section => {
+            section.style.display = 'none';
+        });
+
+        const targetSection = document.getElementById(viewId);
+        if (targetSection) {
+            targetSection.style.display = 'block';
+            window.scrollTo(0, 0); // Scroll to top on view change
+        }
+        
+        // Stop any running timers when switching views (except when moving to post-test/feedback)
+        if (viewId !== 'active-practice' && viewId !== 'active-calming') {
+            clearInterval(practiceTimer);
+            clearInterval(calmingInterval);
+        }
+    }
+    
+    // --- Settings Persistence Logic ---
+    function loadSettings() {
+        if (localStorage.getItem('debateEaseSettings')) {
+            try {
+                appSettings = JSON.parse(localStorage.getItem('debateEaseSettings'));
+            } catch (e) {
+                console.error("Error loading settings from localStorage:", e);
+                localStorage.removeItem('debateEaseSettings');
+            }
+        }
+
+        document.getElementById('google-api-key').value = appSettings.apiKey || '';
+        document.getElementById('base-ai-prompt').value = appSettings.aiPrompt || '';
+        document.getElementById('data-privacy-toggle').checked = appSettings.localOnly;
+    }
+
+    function saveSetting(key, value) {
+        appSettings[key] = value;
+        localStorage.setItem('debateEaseSettings', JSON.stringify(appSettings));
+        console.log(`Setting '${key}' updated and saved.`);
+    }
+
+    // --- Utility: Gemini API Call with Exponential Backoff ---
+    async function callGeminiApi(userQuery, systemPrompt, retries = 3) {
+        // Explicitly use the stored API key if available to resolve "unregistered callers" error.
+        const providedKey = appSettings.apiKey; 
+        // If the key is provided, use it in the URL. Otherwise, leave it blank for environment injection.
+        const apiKeyParam = providedKey ? `key=${providedKey}` : ''; 
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?${apiKeyParam}`;
+
+        const payload = {
+            contents: [{ parts: [{ text: userQuery }] }],
+            systemInstruction: { parts: [{ text: systemPrompt }] },
+        };
+
+        const headers = { 'Content-Type': 'application/json' };
+
+        for (let i = 0; i < retries; i++) {
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: headers,
+                    body: JSON.stringify(payload)
+                });
+                
+                const result = await response.json();
+
+                if (response.ok) {
+                    return result;
+                }
+
+                // Log detailed error from API response
+                console.error(`Gemini API Error (Attempt ${i + 1}):`, result);
+
+                // Handle server errors that might be transient (e.g., 429, 500)
+                if (response.status >= 500 || response.status === 429) {
+                    if (i < retries - 1) {
+                        const delay = Math.pow(2, i) * 1000; // Exponential backoff (1s, 2s, 4s...)
+                        await new Promise(resolve => setTimeout(resolve, delay));
+                        continue; // Retry
+                    }
+                }
+                
+                // For other errors (e.g., 400, 403), throw immediately
+                const errorMessage = result.error?.message || `API call failed with status ${response.status}.`;
+                throw new Error(errorMessage);
+
+            } catch (error) {
+                if (i === retries - 1) {
+                    throw new Error(`Failed to communicate with Gemini API after ${retries} attempts: ${error.message}`);
+                }
+                const delay = Math.pow(2, i) * 1000;
+                await new Promise(resolve => setTimeout(resolve, delay));
+            }
+        }
+    }
+
+    // --- 2. Calming Module Logic (Unchanged) ---
+    const breathingStates = ['INHALE', 'HOLD', 'EXHALE', 'HOLD'];
+    const breathingDurations = [4, 4, 4, 4]; // Box breathing default
+
+    function startCalming() {
+        const duration = parseInt(document.getElementById('calming-duration').value) * 60;
+        const method = document.getElementById('calming-method').value;
+        currentAnxiety = document.getElementById('pre-anxiety-calm').value;
+        
+        calmingSecondsRemaining = duration;
+        showView('active-calming');
+        
+        const visual = document.getElementById('calming-visual');
+        const instructions = document.getElementById('calming-instructions');
+        const timerDisplay = document.getElementById('calming-timer');
+        
+        let cycleIndex = 0; 
+        let cycleTimer = breathingDurations[0]; 
+
+        if (method === '54321') {
+            visual.textContent = 'LOOK';
+            instructions.textContent = 'Name 5 things you can SEE.';
+        } else {
+            calmingInterval = setInterval(() => {
+                calmingSecondsRemaining--;
+                
+                if (method === 'box') {
+                    cycleTimer--;
+                    if (cycleTimer < 0) {
+                        cycleIndex = (cycleIndex + 1) % breathingStates.length;
+                        cycleTimer = breathingDurations[cycleIndex];
+                    }
+                    visual.textContent = breathingStates[cycleIndex];
+                    instructions.textContent = `Breathe: ${breathingStates[cycleIndex]} for ${cycleTimer}s`;
+                } else if (method === '478') {
+                    cycleTimer = (cycleTimer + 1) % 19; 
+                    if (cycleTimer <= 4) { visual.textContent = 'INHALE'; instructions.textContent = 'Inhale deeply for 4 seconds.'; }
+                    else if (cycleTimer <= 11) { visual.textContent = 'HOLD'; instructions.textContent = 'Hold your breath for 7 seconds.'; }
+                    else { visual.textContent = 'EXHALE'; instructions.textContent = 'Exhale completely for 8 seconds.'; }
+                }
+
+                const minutes = Math.floor(calmingSecondsRemaining / 60);
+                const seconds = calmingSecondsRemaining % 60;
+                timerDisplay.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+                if (calmingSecondsRemaining <= 0) {
+                    clearInterval(calmingInterval);
+                    alert('Calming session complete! Moving to Dashboard.');
+                    showView('dashboard');
+                }
+            }, 1000);
+        }
+    }
+
+    function stopCalming() {
+        clearInterval(calmingInterval);
+        alert('Calming session stopped. Moving to Dashboard.');
+        showView('dashboard');
+    }
+
+    // --- 3. Practice Module Logic ---
+    async function generateRandomTopic() {
+        const topicInput = document.getElementById('topic');
+        const originalValue = topicInput.value;
+        topicInput.value = "Loading random topic from AI...";
+        
+        if (!appSettings.apiKey) {
+            alert("🚨 API Key is missing! Please enter it in Settings.");
+            topicInput.value = "Error: API Key Required";
+            return;
+        }
+        
+        try {
+            const userQuery = "Generate one short, random, controversial topic suitable for a high school debate.";
+            const systemPrompt = "You are a creative, professional topic generator. Provide only the topic name, with no introductory phrases or punctuation.";
+            
+            const result = await callGeminiApi(userQuery, systemPrompt);
+            const generatedTopic = result?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "Failed to generate topic.";
+            
+            // Clean up quotes, newlines, and ensure a single line
+            const cleanedTopic = generatedTopic.replace(/['"]+/g, '').replace(/(\r\n|\n|\r)/gm, " ").trim(); 
+            topicInput.value = cleanedTopic;
+            
+        } catch (error) {
+            console.error("AI Topic Generation Error:", error);
+            alert("⚠️ Failed to generate topic. Check API key in Settings. Details in console.");
+            topicInput.value = originalValue || "Error: Could not retrieve topic.";
+        }
+    }
+
+    async function generateArgumentPoints() {
+        const topic = document.getElementById('topic').value;
+        if (!topic || topic.includes("Loading") || topic.includes("Error") || topic === "") {
+            alert("Please enter a valid debate topic first.");
+            return;
+        }
+        
+        if (!appSettings.apiKey) {
+            alert("🚨 API Key is missing! Please enter it in Settings.");
+            return;
+        }
+
+        // Show the modal and set the loading state
+        const modal = document.getElementById('ai-argument-modal');
+        const list = document.getElementById('modal-points-list');
+        const contentArea = document.getElementById('modal-content-area');
+        
+        document.getElementById('modal-topic-title').textContent = topic;
+        list.innerHTML = ''; // Clear previous points
+        contentArea.innerHTML = '<div class="spinner"></div><p style="text-align: center; color: #555;">Generating arguments. This may take a few seconds...</p>';
+        contentArea.style.display = 'block';
+        modal.style.display = 'flex'; // Show modal
+
+        try {
+            const userQuery = `For the debate topic "${topic}", generate exactly 4 distinct, strong, argument points (2 for the affirmative side and 2 for the negative side). Present the response as a simple, unformatted list, one point per line, starting each point with a hyphen (-). Do not include any introductory or concluding text.`;
+            const systemPrompt = appSettings.aiPrompt; 
+
+            const result = await callGeminiApi(userQuery, systemPrompt);
+            const rawText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+            // Hide loading elements
+            contentArea.style.display = 'none';
+
+            if (rawText) {
+                // Parse lines starting with a hyphen
+                const points = rawText.split('\n')
+                    .map(line => line.trim())
+                    .filter(line => line.startsWith('-'));
+                
+                if (points.length === 0) {
+                     list.innerHTML = '<li><small style="color: orange;">AI provided a response, but it could not be parsed into a list. Please check the custom prompt in settings.</small></li>';
+                     return;
+                }
+
+                points.forEach(point => {
+                    const li = document.createElement('li');
+                    // Remove leading hyphen and space
+                    li.innerHTML = point.substring(1).trim(); 
+                    list.appendChild(li);
+                });
+            } else {
+                 list.innerHTML = '<li><small style="color: red;">AI response was empty. Try a different topic or check the custom prompt.</small></li>';
+            }
+        } catch (error) {
+            console.error("AI Argument Generation Error:", error);
+            contentArea.style.display = 'block';
+            contentArea.innerHTML = `<p style="text-align: center; color: var(--danger-color);">⚠️ Connection Error: ${error.message}</p><p style="text-align: center; color: #555;">Please verify your API key is correct and try again.</p>`;
+            list.innerHTML = '';
+        }
+    }
+
+    function startRecording() {
+        if (!SpeechRecognition) {
+            document.getElementById('mic-status').textContent = '⚠️ Speech Recognition not supported in this browser.';
+            return;
+        }
+
+        if (recognition) {
+            recognition.stop();
+        }
+
+        recognition = new SpeechRecognition();
+        recognition.continuous = true; // Keep listening after pauses
+        recognition.interimResults = true; // Show results in real time
+        recognition.lang = 'en-US'; // Set language
+
+        // Reset transcript
+        speechTranscript = "";
+        const transcriptDisplay = document.getElementById('speech-transcript');
+        transcriptDisplay.innerHTML = '**Transcript will appear here as you speak.**';
+
+        recognition.onstart = function() {
+            document.getElementById('mic-status').textContent = '🟢 Listening... Speak clearly now.';
+            document.getElementById('mic-status').style.color = 'var(--calm-color)';
+        };
+
+        recognition.onresult = function(event) {
+            let interimTranscript = '';
+            let finalTranscript = '';
+
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const transcript = event.results[i][0].transcript;
+                if (event.results[i].isFinal) {
+                    finalTranscript += transcript + '. ';
+                } else {
+                    interimTranscript += transcript;
+                }
+            }
+            
+            // Append final transcript to the session transcript
+            if (finalTranscript) {
+                speechTranscript += finalTranscript;
+            }
+
+            // Update the UI display, showing the final transcript plus the current interim speech
+            transcriptDisplay.innerHTML = `<p style="color: #333; margin: 0;">${speechTranscript}</p>` +
+                                         `<p style="color: #aaa; margin: 0;">${interimTranscript}</p>`;
+        };
+
+        recognition.onerror = function(event) {
+            document.getElementById('mic-status').textContent = `🔴 Error: ${event.error}. Click START to retry permission.`;
+            document.getElementById('mic-status').style.color = 'var(--danger-color)';
+            console.error("Speech Recognition Error:", event.error);
+        };
+        
+        recognition.onend = function() {
+            // Restart listening if the session is still active (timer running)
+            if (practiceSecondsRemaining > 0) {
+                 document.getElementById('mic-status').textContent = '🟡 Restarting Microphone... (Delaying 0.5s)';
+                 
+                 // Introduce a slight delay before restarting the recognition.
+                 setTimeout(() => {
+                     try {
+                         recognition.start();
+                     } catch (e) {
+                         // Catch error if start is called while recognition is already starting
+                         console.warn("Recognition start failed during delayed restart.", e);
+                     }
+                 }, 500); // 500ms delay
+
+            } else {
+                 document.getElementById('mic-status').textContent = 'Session ended. Final Transcript Captured.';
+                 document.getElementById('mic-status').style.color = 'var(--primary-color)';
+            }
+        };
+
+        try {
+            recognition.start();
+        } catch (e) {
+            // Catch error if start is called while already listening
+            console.warn("Recognition already started or permission denied.", e);
+        }
+    }
+
+
+    function startPractice() {
+        const duration = parseInt(document.getElementById('timer-duration').value) * 60;
+        const topic = document.getElementById('topic').value || "The Role of AI in Student Privacy (Random Topic)";
+        const notesEnabled = document.getElementById('notes-toggle').checked;
+        currentAnxiety = document.getElementById('pre-anxiety-practice').value;
+        
+        // Reset the transcript before a new session
+        speechTranscript = "";
+
+        practiceSecondsRemaining = duration;
+        const initialMinutes = Math.floor(duration / 60).toString().padStart(2, '0');
+        document.getElementById('countdown-display-practice').textContent = `${initialMinutes}:00`;
+        document.getElementById('current-topic').textContent = topic;
+        document.getElementById('notes-area').style.display = notesEnabled ? 'block' : 'none';
+
+        showView('active-practice');
+        startRecording(); // Start the Web Speech API recognition
+
+        practiceTimer = setInterval(() => {
+            practiceSecondsRemaining--;
+            const minutes = Math.floor(practiceSecondsRemaining / 60);
+            const seconds = practiceSecondsRemaining % 60;
+            document.getElementById('countdown-display-practice').textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+
+            if (practiceSecondsRemaining <= 0) {
+                clearInterval(practiceTimer);
+                // Stop recognition when time is up
+                if (recognition) {
+                    recognition.stop();
+                }
+                console.log("--- FINAL TRANSCRIPT ---");
+                console.log(speechTranscript);
+                alert('Time\'s up! Recording stopped. Preparing analysis...');
+                showView('post-test');
+            }
+        }, 1000);
+    }
+
+    function stopPractice() {
+        clearInterval(practiceTimer);
+        
+        if (recognition) {
+            recognition.stop();
+        }
+        
+        console.log("--- FINAL TRANSCRIPT ---");
+        console.log(speechTranscript);
+        alert('Practice stopped. Please rate your confidence.');
+        
+        showView('post-test');
+    }
+    
+    // --- 4. Feedback Logic ---
+    async function getAiSpeechFeedback() {
+        const topic = document.getElementById('current-topic').textContent;
+        const practiceType = document.getElementById('practice-type').value;
+        
+        if (!appSettings.apiKey) {
+             const errorHtml = `<p style="color: var(--danger-color); font-weight: bold;">API Key Missing!</p><p>Please enter your Google AI API Key in the Settings panel to enable content analysis.</p>`;
+             document.getElementById('ai-clarity-explanation').innerHTML = errorHtml;
+             document.getElementById('ai-clarity-score').textContent = 'N/A';
+             return;
+        }
+
+        if (speechTranscript.trim().length < 50) {
+             const warningHtml = `<p style="color: orange; font-weight: bold;">Transcript Too Short.</p><p>You must speak for at least 50 words to receive meaningful AI content feedback.</p>`;
+             document.getElementById('ai-clarity-explanation').innerHTML = warningHtml;
+             document.getElementById('ai-clarity-score').textContent = 'N/A';
+             document.getElementById('report-word-count').textContent = speechTranscript.split(/\s+/).length;
+             return;
+        }
+
+        const userQuery = `I just finished a ${practiceType} practice session on the topic: "${topic}". My transcribed speech is below. Analyze the content for clarity, logical structure, and effectiveness.
+        
+        --- SPEECH TRANSCRIPT ---
+        ${speechTranscript}
+        
+        ---
+        
+        Please provide your feedback in a specific JSON format: 
+        {
+          "score": "[A clear, concise score from 1/5 to 5/5]",
+          "explanation": "[A brief (1-2 sentence) explanation of the score, focusing on argument strength/structure.]",
+          "improvementTip": "[One short, actionable tip for the user to improve their clarity and argument structure.]"
+        }
+        
+        Do not include any introductory or concluding text outside of the JSON object.`;
+        
+        const systemPrompt = appSettings.aiPrompt;
+
+        try {
+            const result = await callGeminiApi(userQuery, systemPrompt);
+            const rawText = result?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+
+            if (rawText) {
+                // Attempt to parse the JSON response
+                const jsonMatch = rawText.match(/\{[\s\S]*\}/);
+                let feedbackData;
+                
+                if (jsonMatch) {
+                    // Clean up surrounding text and parse
+                    feedbackData = JSON.parse(jsonMatch[0]);
+                } else {
+                     throw new Error("AI did not return a valid JSON object.");
+                }
+
+                document.getElementById('ai-clarity-score').textContent = feedbackData.score || 'N/A';
+                document.getElementById('ai-clarity-explanation').innerHTML = `
+                    <p><strong>Explanation:</strong> ${feedbackData.explanation || 'N/A'}</p>
+                    <p><strong>Improvement Tip:</strong> ${feedbackData.improvementTip || 'N/A'}</p>
+                `;
+            } else {
+                throw new Error("AI returned an empty response.");
+            }
+        } catch (error) {
+            console.error("AI Speech Feedback Error:", error);
+            const errorHtml = `<p style="color: var(--danger-color); font-weight: bold;">AI Feedback Error</p><p>Failed to process content analysis. Error: ${error.message}.</p><p>Please check your API key in Settings.</p>`;
+            document.getElementById('ai-clarity-explanation').innerHTML = errorHtml;
+            document.getElementById('ai-clarity-score').textContent = 'N/A';
+        }
+    }
+
+
+    async function showFeedback() {
+        // 1. Get user input
+        currentConfidence = document.getElementById('post-confidence').value;
+        
+        // 2. Update fixed report metrics
+        document.getElementById('report-anxiety').textContent = currentAnxiety;
+        document.getElementById('report-confidence').textContent = currentConfidence;
+        document.getElementById('report-word-count').textContent = speechTranscript.split(/\s+/).length;
+        
+        // 3. Show feedback view with loading state for AI metric
+        showView('feedback-report');
+        document.getElementById('ai-clarity-score').textContent = 'Loading...';
+        document.getElementById('ai-clarity-explanation').innerHTML = `
+            <div class="spinner"></div>
+            <p style="text-align: center; color: #555;">Analyzing speech content using Google AI...</p>
+        `;
+        
+        // 4. Run AI analysis
+        await getAiSpeechFeedback();
+    }
+
+    // --- Update Initialization ---
+    document.addEventListener('DOMContentLoaded', () => {
+        loadSettings(); 
+        showView('dashboard');
+        
+        // Initial check for Web Speech API support
+        if (!SpeechRecognition) {
+            const micStatus = document.getElementById('mic-status');
+            if (micStatus) {
+                micStatus.innerHTML = '🔴 Microphone: **Web Speech API Not Supported!** Voice features disabled.';
+            }
+        }
+    });
+
+</script>
+    
+<script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js')
+    .then(() => console.log("Service Worker registered"))
+    .catch(err => console.error("SW registration failed:", err));
+}
+</script>
+
+</body>
+
+</html>
