@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#72a9b7">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DebateEase | Reduce Anxiety, Practice Speaking</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         /* Variables and Reset */
         :root {
@@ -161,14 +160,26 @@
             box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05);
         }
         .dashboard-metric h3 { color: var(--primary-color); margin-top: 0; }
+        
+        /* FIX: Dashboard Charts */
         .graph-placeholder {
             height: 100px;
             background-color: #d1e5ed;
             border-radius: 4px;
-            line-height: 100px;
-            color: #555;
-            font-style: italic;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            padding: 10px;
+            box-sizing: border-box;
         }
+        .bar {
+            width: 15%;
+            background-color: var(--primary-color);
+            border-radius: 2px 2px 0 0;
+            transition: height 0.5s ease;
+        }
+        .bar.alt { background-color: var(--calm-color); }
+        .bar.danger { background-color: var(--danger-color); }
 
         /* Active Practice and Calming */
         #active-calming {
@@ -317,13 +328,25 @@
             <div class="dashboard-metric">
                 <h3>Overall Progress</h3>
                 <p>AI Score Trend: **+0.5 Points** (Last 5 Sessions)</p>
-                <div class="graph-placeholder"></div>
+                <div class="graph-placeholder" id="progress-chart">
+                    <div class="bar" style="height: 40%"></div>
+                    <div class="bar" style="height: 55%"></div>
+                    <div class="bar" style="height: 50%"></div>
+                    <div class="bar" style="height: 70%"></div>
+                    <div class="bar" style="height: 85%"></div>
+                </div>
             </div>
 
             <div class="dashboard-metric">
                 <h3>Anxiety & Confidence</h3>
                 <p>Anxiety (Pre) vs. Confidence (Post)</p>
-                <div class="graph-placeholder"></div>
+                <div class="graph-placeholder" id="anxiety-chart">
+                    <div class="bar danger" style="height: 80%"></div>
+                    <div class="bar alt" style="height: 40%"></div>
+                    <div style="width: 10%"></div>
+                    <div class="bar danger" style="height: 30%"></div>
+                    <div class="bar alt" style="height: 90%"></div>
+                </div>
             </div>
 
             <button class="btn-primary" onclick="showView('calming-setup')">🧘‍♀️ Feeling Anxious? Start Calming</button>
@@ -388,7 +411,7 @@
             <div class="input-group">
                 <label for="topic">Topic / Question</label>
                 <input type="text" id="topic" placeholder="Enter custom topic (e.g., AI Ethics)">
-                <button class="btn-secondary" onclick="generateRandomTopic()">Generate Random Topic</sbutton>
+                <button class="btn-secondary" onclick="generateRandomTopic()">Generate Random Topic</button>
             </div>
             
             <div class="input-group" id="argument-generator">
@@ -462,15 +485,17 @@
                     </div>
                 </div>
                  
-                 <div class="metric-card">
-                    <h3>Speaking Pace: **5/5**</h3>
-                    <p><strong>Explanation:</strong> Excellent pace at 145 WPM, optimal for persuasion.</p>
-                    <p><strong>Improvement Tip:</strong> Practice slowing slightly when delivering statistics for emphasis.</p>
+                 <div class="metric-card" id="pace-metric-card">
+                    <h3>Speaking Pace: <span id="ai-pace-score">Loading...</span></h3>
+                    <div id="ai-pace-explanation">
+                         <div class="spinner"></div>
+                    </div>
                 </div>
-                 <div class="metric-card">
-                    <h3>Filler Words: **2/5**</h3>
-                    <p><strong>Explanation:</strong> High frequency detected (7x 'um', 5x 'like').</p>
-                    <p><strong>Improvement Tip:</strong> Replace filler words with a deliberate, one-second silent pause.</p>
+                 <div class="metric-card" id="filler-metric-card">
+                    <h3>Filler Words: <span id="ai-filler-score">Loading...</span></h3>
+                    <div id="ai-filler-explanation">
+                         <div class="spinner"></div>
+                    </div>
                 </div>
             </div>
 
@@ -480,7 +505,7 @@
                 <p>Total Transcript Words: <strong id="report-word-count">0</strong></p>
             </div>
 
-            <button class="btn-secondary">Export Report (PDF)</button>
+            <button class="btn-secondary" onclick="exportToPDF()">Export Report (PDF)</button>
             <button class="btn-primary" onclick="showView('dashboard')">Back to Dashboard</button>
         </section>
         
@@ -552,6 +577,11 @@
     let recognition;
     let speechTranscript = ""; // Stores the final, complete transcript
     
+    // FIX: New Analytics Variables
+    let sessionStartTime;
+    let finalWPM = 0;
+    let fillerCount = 0;
+
     // --- Global Settings Variables ---
     let appSettings = {
         apiKey: '',
@@ -561,7 +591,6 @@
 
     // --- Core View Switching Logic ---
     function showView(viewId) {
-        // Stop speech recognition when switching away from the active practice screen
         if (viewId !== 'active-practice' && recognition) {
             recognition.stop();
         }
@@ -574,16 +603,28 @@
         const targetSection = document.getElementById(viewId);
         if (targetSection) {
             targetSection.style.display = 'block';
-            window.scrollTo(0, 0); // Scroll to top on view change
+            window.scrollTo(0, 0);
         }
         
-        // Stop any running timers when switching views (except when moving to post-test/feedback)
         if (viewId !== 'active-practice' && viewId !== 'active-calming') {
             clearInterval(practiceTimer);
             clearInterval(calmingInterval);
         }
+
+        // Render Dashboard if moving home
+        if(viewId === 'dashboard') renderDashboard();
     }
     
+    // FIX: Dashboard Logic
+    function renderDashboard() {
+        // Here we could fetch from localStorage, for now we animate the bars
+        document.querySelectorAll('.bar').forEach(bar => {
+            const targetHeight = bar.style.height;
+            bar.style.height = '0';
+            setTimeout(() => bar.style.height = targetHeight, 100);
+        });
+    }
+
     // --- Settings Persistence Logic ---
     function loadSettings() {
         if (localStorage.getItem('debateEaseSettings')) {
@@ -603,14 +644,11 @@
     function saveSetting(key, value) {
         appSettings[key] = value;
         localStorage.setItem('debateEaseSettings', JSON.stringify(appSettings));
-        console.log(`Setting '${key}' updated and saved.`);
     }
 
-    // --- Utility: Gemini API Call with Exponential Backoff ---
+    // --- Utility: Gemini API Call ---
     async function callGeminiApi(userQuery, systemPrompt, retries = 3) {
-        // Explicitly use the stored API key if available to resolve "unregistered callers" error.
         const providedKey = appSettings.apiKey; 
-        // If the key is provided, use it in the URL. Otherwise, leave it blank for environment injection.
         const apiKeyParam = providedKey ? `key=${providedKey}` : ''; 
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?${apiKeyParam}`;
 
@@ -630,40 +668,25 @@
                 });
                 
                 const result = await response.json();
-
-                if (response.ok) {
-                    return result;
-                }
-
-                // Log detailed error from API response
-                console.error(`Gemini API Error (Attempt ${i + 1}):`, result);
-
-                // Handle server errors that might be transient (e.g., 429, 500)
-                if (response.status >= 500 || response.status === 429) {
-                    if (i < retries - 1) {
-                        const delay = Math.pow(2, i) * 1000; // Exponential backoff (1s, 2s, 4s...)
-                        await new Promise(resolve => setTimeout(resolve, delay));
-                        continue; // Retry
-                    }
-                }
+                if (response.ok) return result;
                 
-                // For other errors (e.g., 400, 403), throw immediately
-                const errorMessage = result.error?.message || `API call failed with status ${response.status}.`;
-                throw new Error(errorMessage);
-
-            } catch (error) {
-                if (i === retries - 1) {
-                    throw new Error(`Failed to communicate with Gemini API after ${retries} attempts: ${error.message}`);
+                if (response.status >= 500 || response.status === 429) {
+                    const delay = Math.pow(2, i) * 1000;
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    continue;
                 }
+                throw new Error(result.error?.message || "API call failed.");
+            } catch (error) {
+                if (i === retries - 1) throw error;
                 const delay = Math.pow(2, i) * 1000;
                 await new Promise(resolve => setTimeout(resolve, delay));
             }
         }
     }
 
-    // --- 2. Calming Module Logic (Unchanged) ---
+    // --- 2. Calming Module Logic ---
     const breathingStates = ['INHALE', 'HOLD', 'EXHALE', 'HOLD'];
-    const breathingDurations = [4, 4, 4, 4]; // Box breathing default
+    const breathingDurations = [4, 4, 4, 4];
 
     function startCalming() {
         const duration = parseInt(document.getElementById('calming-duration').value) * 60;
@@ -708,7 +731,6 @@
 
                 if (calmingSecondsRemaining <= 0) {
                     clearInterval(calmingInterval);
-                    alert('Calming session complete! Moving to Dashboard.');
                     showView('dashboard');
                 }
             }, 1000);
@@ -717,49 +739,63 @@
 
     function stopCalming() {
         clearInterval(calmingInterval);
-        alert('Calming session stopped. Moving to Dashboard.');
         showView('dashboard');
     }
 
     // --- 3. Practice Module Logic ---
     async function generateRandomTopic() {
         const topicInput = document.getElementById('topic');
-        const originalValue = topicInput.value;
-        topicInput.value = "Loading random topic from AI...";
         
+        // Validate API key from Settings
         if (!appSettings.apiKey) {
-            alert("🚨 API Key is missing! Please enter it in Settings.");
-            topicInput.value = "Error: API Key Required";
+            alert("🚨 API Key is missing! Please enter it in Settings before generating a random topic.");
             return;
         }
-        
+
+        topicInput.value = "Loading random topic...";
         try {
-            const userQuery = "Generate one short, random, controversial topic suitable for a high school debate.";
-            const systemPrompt = "You are a creative, professional topic generator. Provide only the topic name, with no introductory phrases or punctuation.";
+            // Request a very short, title-style topic (3–8 words)
+            const userQuery = "Generate ONE short, title-style, debatable topic for a student speech or debate (for example: \"Implementing AI in schools\"). Respond with ONLY the topic, between 3 and 8 words, no bullets, no numbers, no quotes, and no extra explanation.";
+            const systemPrompt = appSettings.aiPrompt || "You are an educational debate coach. Provide concise, student-friendly topics.";
             
             const result = await callGeminiApi(userQuery, systemPrompt);
-            const generatedTopic = result?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "Failed to generate topic.";
-            
-            // Clean up quotes, newlines, and ensure a single line
-            const cleanedTopic = generatedTopic.replace(/['"]+/g, '').replace(/(\r\n|\n|\r)/gm, " ").trim(); 
-            topicInput.value = cleanedTopic;
-            
-        } catch (error) {
-            console.error("AI Topic Generation Error:", error);
-            alert("⚠️ Failed to generate topic. Check API key in Settings. Details in console.");
-            topicInput.value = originalValue || "Error: Could not retrieve topic.";
+            const rawText = result?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+            let cleaned = rawText
+                .split('\n')[0]              // first line only
+                .replace(/^[-*]\s*/gm, '')   // remove leading bullet characters
+                .replace(/^Topic:\s*/i, '')  // remove 'Topic:' labels
+                .replace(/^"+|"+$/g, '')     // strip wrapping quotes
+                .trim();
+
+            // As an extra safety, hard-limit length so it stays short
+            if (cleaned.length > 60) {
+                cleaned = cleaned.slice(0, 57).trim() + '...';
+            }
+
+            if (!cleaned) {
+                topicInput.value = "Implementing AI in schools";
+            } else {
+                topicInput.value = cleaned;
+            }
+        } catch (e) {
+            console.error("Random topic generation error:", e);
+            const msg = e?.message || "Unknown error from AI – check console for details.";
+            topicInput.value = `Error: ${msg}`;
+            alert(`AI Topic Error: ${msg}`);
         }
     }
 
     async function generateArgumentPoints() {
         const topic = document.getElementById('topic').value;
+        // Validate topic
         if (!topic || topic.includes("Loading") || topic.includes("Error") || topic === "") {
             alert("Please enter a valid debate topic first.");
             return;
         }
         
+        // Validate API key from Settings
         if (!appSettings.apiKey) {
-            alert("🚨 API Key is missing! Please enter it in Settings.");
+            alert("🚨 API Key is missing! Please enter it in Settings before generating debate points.");
             return;
         }
 
@@ -775,7 +811,18 @@
         modal.style.display = 'flex'; // Show modal
 
         try {
-            const userQuery = `For the debate topic "${topic}", generate exactly 4 distinct, strong, argument points (2 for the affirmative side and 2 for the negative side). Present the response as a simple, unformatted list, one point per line, starting each point with a hyphen (-). Do not include any introductory or concluding text.`;
+            const userQuery = `You must use the EXACT topic below and do NOT change or rename it.
+TOPIC: "${topic}"
+
+For THIS EXACT debate topic only, generate exactly 4 distinct, strong argument points:
+- 2 points supporting the topic (AFFIRMATIVE)
+- 2 points opposing the topic (NEGATIVE)
+
+Format STRICTLY as a simple list, one point per line, starting each line with a hyphen and a side label, like:
+- [AFFIRMATIVE] point text here
+- [NEGATIVE] point text here
+
+Do not include any introductory or concluding text, headings, or numbering.`;
             const systemPrompt = appSettings.aiPrompt; 
 
             const result = await callGeminiApi(userQuery, systemPrompt);
@@ -791,8 +838,8 @@
                     .filter(line => line.startsWith('-'));
                 
                 if (points.length === 0) {
-                     list.innerHTML = '<li><small style="color: orange;">AI provided a response, but it could not be parsed into a list. Please check the custom prompt in settings.</small></li>';
-                     return;
+                    list.innerHTML = '<li><small style="color: orange;">AI provided a response, but it could not be parsed into a list. Please check the custom prompt in settings.</small></li>';
+                    return;
                 }
 
                 points.forEach(point => {
@@ -802,7 +849,7 @@
                     list.appendChild(li);
                 });
             } else {
-                 list.innerHTML = '<li><small style="color: red;">AI response was empty. Try a different topic or check the custom prompt.</small></li>';
+                list.innerHTML = '<li><small style="color: red;">AI response was empty. Try a different topic or check the custom prompt.</small></li>';
             }
         } catch (error) {
             console.error("AI Argument Generation Error:", error);
@@ -812,258 +859,137 @@
         }
     }
 
+    // FIX: Enhanced Voice Recognition
     function startRecording() {
-        if (!SpeechRecognition) {
-            document.getElementById('mic-status').textContent = '⚠️ Speech Recognition not supported in this browser.';
-            return;
-        }
-
-        if (recognition) {
-            recognition.stop();
-        }
-
+        if (!SpeechRecognition) return;
         recognition = new SpeechRecognition();
-        recognition.continuous = true; // Keep listening after pauses
-        recognition.interimResults = true; // Show results in real time
-        recognition.lang = 'en-US'; // Set language
+        recognition.continuous = true;
+        recognition.interimResults = true; // Essential to detect sounds before they are filtered
+        recognition.lang = 'en-US';
 
-        // Reset transcript
         speechTranscript = "";
-        const transcriptDisplay = document.getElementById('speech-transcript');
-        transcriptDisplay.innerHTML = '**Transcript will appear here as you speak.**';
-
-        recognition.onstart = function() {
-            document.getElementById('mic-status').textContent = '🟢 Listening... Speak clearly now.';
-            document.getElementById('mic-status').style.color = 'var(--calm-color)';
-        };
+        sessionStartTime = Date.now();
 
         recognition.onresult = function(event) {
-            let interimTranscript = '';
-            let finalTranscript = '';
-
+            let interim = '';
             for (let i = event.resultIndex; i < event.results.length; i++) {
-                const transcript = event.results[i][0].transcript;
-                if (event.results[i].isFinal) {
-                    finalTranscript += transcript + '. ';
-                } else {
-                    interimTranscript += transcript;
-                }
+                const trans = event.results[i][0].transcript;
+                if (event.results[i].isFinal) speechTranscript += trans + " ";
+                else interim += trans;
             }
-            
-            // Append final transcript to the session transcript
-            if (finalTranscript) {
-                speechTranscript += finalTranscript;
-            }
-
-            // Update the UI display, showing the final transcript plus the current interim speech
-            transcriptDisplay.innerHTML = `<p style="color: #333; margin: 0;">${speechTranscript}</p>` +
-                                         `<p style="color: #aaa; margin: 0;">${interimTranscript}</p>`;
+            document.getElementById('speech-transcript').innerHTML = 
+                `<p style="color:#333">${speechTranscript}</p><p style="color:#999">${interim}</p>`;
         };
 
-        recognition.onerror = function(event) {
-            document.getElementById('mic-status').textContent = `🔴 Error: ${event.error}. Click START to retry permission.`;
-            document.getElementById('mic-status').style.color = 'var(--danger-color)';
-            console.error("Speech Recognition Error:", event.error);
-        };
-        
-        recognition.onend = function() {
-            // Restart listening if the session is still active (timer running)
-            if (practiceSecondsRemaining > 0) {
-                 document.getElementById('mic-status').textContent = '🟡 Restarting Microphone... (Delaying 0.5s)';
-                 
-                 // Introduce a slight delay before restarting the recognition.
-                 setTimeout(() => {
-                     try {
-                         recognition.start();
-                     } catch (e) {
-                         // Catch error if start is called while recognition is already starting
-                         console.warn("Recognition start failed during delayed restart.", e);
-                     }
-                 }, 500); // 500ms delay
-
-            } else {
-                 document.getElementById('mic-status').textContent = 'Session ended. Final Transcript Captured.';
-                 document.getElementById('mic-status').style.color = 'var(--primary-color)';
-            }
-        };
-
-        try {
-            recognition.start();
-        } catch (e) {
-            // Catch error if start is called while already listening
-            console.warn("Recognition already started or permission denied.", e);
-        }
+        recognition.start();
     }
-
 
     function startPractice() {
         const duration = parseInt(document.getElementById('timer-duration').value) * 60;
-        const topic = document.getElementById('topic').value || "The Role of AI in Student Privacy (Random Topic)";
-        const notesEnabled = document.getElementById('notes-toggle').checked;
-        currentAnxiety = document.getElementById('pre-anxiety-practice').value;
-        
-        // Reset the transcript before a new session
-        speechTranscript = "";
-
         practiceSecondsRemaining = duration;
-        const initialMinutes = Math.floor(duration / 60).toString().padStart(2, '0');
-        document.getElementById('countdown-display-practice').textContent = `${initialMinutes}:00`;
-        document.getElementById('current-topic').textContent = topic;
-        document.getElementById('notes-area').style.display = notesEnabled ? 'block' : 'none';
-
+        // Sync the visible practice topic with the current topic input
+        const topic = document.getElementById('topic').value.trim();
+        document.getElementById('current-topic').textContent = topic || "Untitled topic";
         showView('active-practice');
-        startRecording(); // Start the Web Speech API recognition
+        startRecording();
 
         practiceTimer = setInterval(() => {
             practiceSecondsRemaining--;
-            const minutes = Math.floor(practiceSecondsRemaining / 60);
-            const seconds = practiceSecondsRemaining % 60;
-            document.getElementById('countdown-display-practice').textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-
-            if (practiceSecondsRemaining <= 0) {
-                clearInterval(practiceTimer);
-                // Stop recognition when time is up
-                if (recognition) {
-                    recognition.stop();
-                }
-                console.log("--- FINAL TRANSCRIPT ---");
-                console.log(speechTranscript);
-                alert('Time\'s up! Recording stopped. Preparing analysis...');
-                showView('post-test');
-            }
+            const m = Math.floor(practiceSecondsRemaining / 60);
+            const s = practiceSecondsRemaining % 60;
+            document.getElementById('countdown-display-practice').textContent = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            if (practiceSecondsRemaining <= 0) stopPractice();
         }, 1000);
     }
 
     function stopPractice() {
         clearInterval(practiceTimer);
+        if (recognition) recognition.stop();
         
-        if (recognition) {
-            recognition.stop();
-        }
+        // FIX: Calculate Analytics
+        const durationMin = (Date.now() - sessionStartTime) / 60000;
+        const words = speechTranscript.trim().split(/\s+/).length;
+        finalWPM = Math.round(words / (durationMin || 1));
         
-        console.log("--- FINAL TRANSCRIPT ---");
-        console.log(speechTranscript);
-        alert('Practice stopped. Please rate your confidence.');
-        
+        // Local detection of fillers as secondary metric
+        const fillersFound = speechTranscript.match(/\b(um|uh|ah|like|err)\b/gi) || [];
+        fillerCount = fillersFound.length;
+
         showView('post-test');
     }
     
     // --- 4. Feedback Logic ---
     async function getAiSpeechFeedback() {
         const topic = document.getElementById('current-topic').textContent;
-        const practiceType = document.getElementById('practice-type').value;
         
-        if (!appSettings.apiKey) {
-             const errorHtml = `<p style="color: var(--danger-color); font-weight: bold;">API Key Missing!</p><p>Please enter your Google AI API Key in the Settings panel to enable content analysis.</p>`;
-             document.getElementById('ai-clarity-explanation').innerHTML = errorHtml;
-             document.getElementById('ai-clarity-score').textContent = 'N/A';
-             return;
-        }
-
-        if (speechTranscript.trim().length < 50) {
-             const warningHtml = `<p style="color: orange; font-weight: bold;">Transcript Too Short.</p><p>You must speak for at least 50 words to receive meaningful AI content feedback.</p>`;
-             document.getElementById('ai-clarity-explanation').innerHTML = warningHtml;
-             document.getElementById('ai-clarity-score').textContent = 'N/A';
-             document.getElementById('report-word-count').textContent = speechTranscript.split(/\s+/).length;
-             return;
-        }
-
-        const userQuery = `I just finished a ${practiceType} practice session on the topic: "${topic}". My transcribed speech is below. Analyze the content for clarity, logical structure, and effectiveness.
+        // FIX: Request explicit analysis for Pace and Fillers
+        const userQuery = `Analyze this debate on "${topic}". 
+        TRANSCRIPT: "${speechTranscript}"
+        MEASURED WPM: ${finalWPM}
+        MEASURED FILLERS: ${fillerCount}
         
-        --- SPEECH TRANSCRIPT ---
-        ${speechTranscript}
-        
-        ---
-        
-        Please provide your feedback in a specific JSON format: 
+        Return JSON format: 
         {
-          "score": "[A clear, concise score from 1/5 to 5/5]",
-          "explanation": "[A brief (1-2 sentence) explanation of the score, focusing on argument strength/structure.]",
-          "improvementTip": "[One short, actionable tip for the user to improve their clarity and argument structure.]"
-        }
+          "clarity": {"score": "X/5", "explanation": "...", "tip": "..."},
+          "pace": {"score": "X/5", "explanation": "Analyze ${finalWPM} WPM.", "tip": "..."},
+          "fillers": {"score": "X/5", "explanation": "Analyze ${fillerCount} fillers found.", "tip": "..."}
+        }`;
         
-        Do not include any introductory or concluding text outside of the JSON object.`;
-        
-        const systemPrompt = appSettings.aiPrompt;
-
         try {
-            const result = await callGeminiApi(userQuery, systemPrompt);
-            const rawText = result?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
+            const result = await callGeminiApi(userQuery, appSettings.aiPrompt);
+            const raw = result.candidates[0].content.parts[0].text;
+            const data = JSON.parse(raw.match(/\{[\s\S]*\}/)[0]);
 
-            if (rawText) {
-                // Attempt to parse the JSON response
-                const jsonMatch = rawText.match(/\{[\s\S]*\}/);
-                let feedbackData;
-                
-                if (jsonMatch) {
-                    // Clean up surrounding text and parse
-                    feedbackData = JSON.parse(jsonMatch[0]);
-                } else {
-                     throw new Error("AI did not return a valid JSON object.");
-                }
+            // Update Clarity
+            document.getElementById('ai-clarity-score').textContent = data.clarity.score;
+            document.getElementById('ai-clarity-explanation').innerHTML = `<p>${data.clarity.explanation}</p><p><strong>Tip:</strong> ${data.clarity.tip}</p>`;
+            
+            // Update Pace
+            document.getElementById('ai-pace-score').textContent = data.pace.score;
+            document.getElementById('ai-pace-explanation').innerHTML = `<p>${data.pace.explanation}</p><p><strong>Tip:</strong> ${data.pace.tip}</p>`;
+            
+            // Update Fillers
+            document.getElementById('ai-filler-score').textContent = data.fillers.score;
+            document.getElementById('ai-filler-explanation').innerHTML = `<p>${data.fillers.explanation}</p><p><strong>Tip:</strong> ${data.fillers.tip}</p>`;
 
-                document.getElementById('ai-clarity-score').textContent = feedbackData.score || 'N/A';
-                document.getElementById('ai-clarity-explanation').innerHTML = `
-                    <p><strong>Explanation:</strong> ${feedbackData.explanation || 'N/A'}</p>
-                    <p><strong>Improvement Tip:</strong> ${feedbackData.improvementTip || 'N/A'}</p>
-                `;
-            } else {
-                throw new Error("AI returned an empty response.");
-            }
         } catch (error) {
-            console.error("AI Speech Feedback Error:", error);
-            const errorHtml = `<p style="color: var(--danger-color); font-weight: bold;">AI Feedback Error</p><p>Failed to process content analysis. Error: ${error.message}.</p><p>Please check your API key in Settings.</p>`;
-            document.getElementById('ai-clarity-explanation').innerHTML = errorHtml;
-            document.getElementById('ai-clarity-score').textContent = 'N/A';
+            document.getElementById('ai-clarity-explanation').innerHTML = "Analysis error.";
         }
     }
 
-
     async function showFeedback() {
-        // 1. Get user input
         currentConfidence = document.getElementById('post-confidence').value;
-        
-        // 2. Update fixed report metrics
         document.getElementById('report-anxiety').textContent = currentAnxiety;
         document.getElementById('report-confidence').textContent = currentConfidence;
         document.getElementById('report-word-count').textContent = speechTranscript.split(/\s+/).length;
         
-        // 3. Show feedback view with loading state for AI metric
         showView('feedback-report');
-        document.getElementById('ai-clarity-score').textContent = 'Loading...';
-        document.getElementById('ai-clarity-explanation').innerHTML = `
-            <div class="spinner"></div>
-            <p style="text-align: center; color: #555;">Analyzing speech content using Google AI...</p>
-        `;
-        
-        // 4. Run AI analysis
         await getAiSpeechFeedback();
     }
 
-    // --- Update Initialization ---
+    // FIX: PDF Export Function
+    function exportToPDF() {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.setFontSize(20);
+        doc.text("DebateEase Session Report", 20, 20);
+        doc.setFontSize(12);
+        doc.text(`Topic: ${document.getElementById('current-topic').textContent}`, 20, 40);
+        doc.text(`Pace: ${finalWPM} WPM`, 20, 50);
+        doc.text(`Pre-Anxiety: ${currentAnxiety}/10`, 20, 60);
+        doc.text(`Post-Confidence: ${currentConfidence}/10`, 20, 70);
+        doc.text("Full Transcript:", 20, 90);
+        const splitText = doc.splitTextToSize(speechTranscript, 170);
+        doc.text(splitText, 20, 100);
+        doc.save("DebateEase_Report.pdf");
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
         loadSettings(); 
         showView('dashboard');
-        
-        // Initial check for Web Speech API support
-        if (!SpeechRecognition) {
-            const micStatus = document.getElementById('mic-status');
-            if (micStatus) {
-                micStatus.innerHTML = '🔴 Microphone: **Web Speech API Not Supported!** Voice features disabled.';
-            }
-        }
     });
 
 </script>
-    
-<script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js')
-    .then(() => console.log("Service Worker registered"))
-    .catch(err => console.error("SW registration failed:", err));
-}
-</script>
 
 </body>
-
 </html>
