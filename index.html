@@ -8,13 +8,27 @@
     <style>
         /* Variables and Reset */
         :root {
-            --primary-color: #72a9b7; /* Soft Blue-Green */
-            --secondary-color: #c0d9e1; /* Pale Blue */
-            --calm-color: #a3c4b2; /* Gentle Green */
-            --background-color: #f4f7f9; /* Light Grey */
-            --text-color: #333333;
-            --danger-color: #d9534f;
-            --font-family: 'Roboto', sans-serif;
+            --primary-color: #6366f1; /* Modern Indigo */
+            --primary-dark: #4f46e5;
+            --primary-light: #818cf8;
+            --secondary-color: #e0e7ff; /* Light Indigo */
+            --calm-color: #10b981; /* Modern Green */
+            --calm-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            --background-color: #f8fafc; /* Cool Grey */
+            --text-color: #1e293b;
+            --text-light: #64748b;
+            --danger-color: #ef4444;
+            --danger-gradient: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            --success-color: #10b981;
+            --font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+
+        * {
+            box-sizing: border-box;
         }
 
         /* Base Styles (Mobile-First) */
@@ -22,122 +36,283 @@
             font-family: var(--font-family);
             margin: 0;
             padding: 0;
-            background-color: var(--background-color);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background-attachment: fixed;
             color: var(--text-color);
             line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         .app-container {
             max-width: 500px;
             margin: 0 auto;
-            background-color: white;
+            background-color: #ffffff;
             min-height: 100vh;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--shadow-xl);
             display: flex;
             flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .app-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-color) 0%, var(--calm-color) 50%, var(--primary-color) 100%);
+            background-size: 200% 100%;
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
         }
 
         /* Header */
         header {
-            background-color: var(--primary-color);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
             color: white;
-            padding: 15px 20px;
+            padding: 20px 20px 24px;
             text-align: center;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-shadow: var(--shadow-md);
+            position: relative;
+            z-index: 1;
+        }
+
+        header::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
         }
 
         header h1 {
             margin: 0;
-            font-size: 1.6em;
+            font-size: 1.75em;
             font-weight: 700;
+            letter-spacing: -0.5px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         /* Main Content */
         main {
-            padding: 20px;
+            padding: 24px 20px;
             flex-grow: 1;
             overflow-y: auto;
+            background: var(--background-color);
         }
 
         section {
-            margin-bottom: 30px;
-            padding: 15px;
-            border-radius: 12px;
-            background-color: #ffffff;
-            border: 1px solid var(--secondary-color);
+            margin-bottom: 24px;
+            padding: 24px;
+            border-radius: 16px;
+            background: #ffffff;
+            box-shadow: var(--shadow-md);
+            border: none;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.4s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-color), var(--calm-color));
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        section:hover::before {
+            opacity: 1;
         }
 
         h2 {
-            color: var(--primary-color);
-            border-bottom: 2px solid var(--secondary-color);
-            padding-bottom: 8px;
+            color: var(--text-color);
+            border-bottom: none;
+            padding-bottom: 12px;
             margin-top: 0;
-            font-size: 1.4em;
+            margin-bottom: 20px;
+            font-size: 1.5em;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            position: relative;
+            display: inline-block;
+        }
+
+        h2::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 40px;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-color), var(--calm-color));
+            border-radius: 2px;
         }
 
         /* Buttons and Inputs */
         button {
             width: 100%;
-            padding: 12px;
-            margin-top: 15px;
+            padding: 16px 24px;
+            margin-top: 16px;
             border: none;
-            border-radius: 8px;
+            border-radius: 12px;
             font-size: 1em;
+            font-weight: 600;
             cursor: pointer;
-            transition: background-color 0.3s, transform 0.1s;
-            font-weight: 500;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 0.3px;
+            box-shadow: var(--shadow-md);
         }
-        button:active { transform: scale(0.99); }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        button:active::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        button:active { 
+            transform: scale(0.98);
+            box-shadow: var(--shadow-sm);
+        }
 
         .btn-primary {
-            background-color: var(--primary-color);
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
             color: white;
+            box-shadow: var(--shadow-lg);
         }
-        .btn-primary:hover { background-color: #6195a3; }
+        .btn-primary:hover { 
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-xl);
+        }
 
         .btn-secondary {
-            background-color: var(--secondary-color);
+            background: #ffffff;
             color: var(--text-color);
-            margin-top: 5px;
+            border: 2px solid var(--secondary-color);
+            margin-top: 8px;
+            box-shadow: var(--shadow-sm);
         }
-        .btn-secondary:hover { background-color: #b0c9d3; }
+        .btn-secondary:hover { 
+            background: var(--secondary-color);
+            border-color: var(--primary-light);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
 
         .input-group {
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
 
         .input-group label {
             display: block;
-            margin-bottom: 5px;
-            font-weight: bold;
-            color: #555;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--text-color);
             font-size: 0.95em;
+            letter-spacing: 0.2px;
         }
 
-        .input-group select, .input-group input[type="text"], .input-group input[type="number"], .input-group textarea, .input-group input[type="range"] {
+        .input-group select, 
+        .input-group input[type="text"], 
+        .input-group input[type="number"], 
+        .input-group textarea {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 6px;
+            padding: 14px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
             box-sizing: border-box;
             font-size: 1em;
+            font-family: var(--font-family);
+            transition: all 0.3s ease;
+            background: #ffffff;
+            color: var(--text-color);
         }
-        
+
+        .input-group select:focus, 
+        .input-group input[type="text"]:focus, 
+        .input-group input[type="number"]:focus, 
+        .input-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
         .input-group input[type="range"] {
-             padding: 0;
-             height: 30px; 
-             -webkit-appearance: none;
-             background: var(--secondary-color);
-             margin-top: 10px;
+            width: 100%;
+            padding: 0;
+            height: 8px; 
+            -webkit-appearance: none;
+            appearance: none;
+            background: linear-gradient(to right, var(--secondary-color) 0%, var(--primary-light) 100%);
+            border-radius: 4px;
+            margin-top: 12px;
+            cursor: pointer;
         }
+
         .input-group input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 20px;
-            height: 20px;
+            appearance: none;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
-            background: var(--primary-color);
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
             cursor: pointer;
-            box-shadow: 0 0 5px rgba(0,0,0,0.2);
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+            transition: transform 0.2s ease;
+        }
+
+        .input-group input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.1);
+        }
+
+        .input-group input[type="range"]::-moz-range-thumb {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(99, 102, 241, 0.4);
+            border: none;
         }
 
         /* Toggle Switch Styling */
@@ -145,41 +320,95 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
-            padding: 10px 0;
-            border-top: 1px dashed #eee;
+            margin-bottom: 20px;
+            padding: 16px;
+            background: #f8fafc;
+            border-radius: 12px;
+            border: 2px solid #e2e8f0;
+        }
+
+        .toggle-switch input[type="checkbox"] {
+            width: 48px;
+            height: 28px;
+            -webkit-appearance: none;
+            appearance: none;
+            background: #cbd5e1;
+            border-radius: 14px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .toggle-switch input[type="checkbox"]:checked {
+            background: var(--primary-color);
+        }
+
+        .toggle-switch input[type="checkbox"]::before {
+            content: '';
+            position: absolute;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: white;
+            top: 2px;
+            left: 2px;
+            transition: transform 0.3s ease;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .toggle-switch input[type="checkbox"]:checked::before {
+            transform: translateX(20px);
         }
         
         /* Dashboard Metrics */
         .dashboard-metric {
             text-align: center;
-            padding: 15px;
-            border-radius: 8px;
-            background-color: #e6f3f8; /* Very light primary color */
-            margin-bottom: 15px;
-            box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05);
+            padding: 24px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            margin-bottom: 20px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid rgba(99, 102, 241, 0.1);
+            transition: transform 0.2s ease;
         }
-        .dashboard-metric h3 { color: var(--primary-color); margin-top: 0; }
+
+        .dashboard-metric:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .dashboard-metric h3 { 
+            color: var(--primary-color); 
+            margin-top: 0; 
+            font-weight: 700;
+            font-size: 1.1em;
+        }
         
-        /* FIX: Dashboard Charts */
+        /* Dashboard Charts */
         .graph-placeholder {
-            height: 100px;
-            background-color: #d1e5ed;
-            border-radius: 4px;
+            height: 120px;
+            background: linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 12px;
             display: flex;
             align-items: flex-end;
             justify-content: space-around;
-            padding: 10px;
+            padding: 16px;
             box-sizing: border-box;
+            margin-top: 16px;
         }
         .bar {
             width: 15%;
-            background-color: var(--primary-color);
-            border-radius: 2px 2px 0 0;
-            transition: height 0.5s ease;
+            background: linear-gradient(180deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+            border-radius: 8px 8px 0 0;
+            transition: height 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-sm);
         }
-        .bar.alt { background-color: var(--calm-color); }
-        .bar.danger { background-color: var(--danger-color); }
+        .bar.alt { 
+            background: linear-gradient(180deg, var(--calm-color) 0%, #059669 100%);
+        }
+        .bar.danger { 
+            background: linear-gradient(180deg, var(--danger-color) 0%, #dc2626 100%);
+        }
 
         /* Active Practice and Calming */
         #active-calming {
@@ -189,60 +418,136 @@
             justify-content: center;
             align-items: center;
             text-align: center;
-            background-color: var(--calm-color); /* Gentle Green background */
+            background: var(--calm-gradient);
             color: white;
-            padding: 20px;
+            padding: 40px 20px;
+            border-radius: 0;
+            margin: 0;
+            box-shadow: none;
         }
-        #calming-visual, #countdown-display-practice {
-            font-size: 4em;
-            font-weight: 700;
-            margin: 20px 0;
-            transition: all 1.5s ease-in-out;
-            color: white;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
-        }
-        .calming-state { font-size: 1.5em; margin-bottom: 40px; }
 
-        #active-practice { background-color: #f7f7f7; color: var(--text-color); }
+        #active-calming::before {
+            display: none;
+        }
+
+        #calming-visual, #countdown-display-practice {
+            font-size: 5em;
+            font-weight: 700;
+            margin: 24px 0;
+            transition: all 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+            color: white;
+            text-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            letter-spacing: -2px;
+        }
+
+        .calming-state { 
+            font-size: 1.3em; 
+            margin-bottom: 40px; 
+            font-weight: 500;
+            opacity: 0.95;
+        }
+
+        #active-practice { 
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            color: var(--text-color);
+            border-radius: 0;
+            margin: 0;
+            box-shadow: none;
+        }
+
+        #active-practice::before {
+            display: none;
+        }
+
         #countdown-display-practice { 
-            font-size: 3em; 
-            color: var(--danger-color); 
-            text-shadow: none; /* Override white shadow */
+            font-size: 4em; 
+            color: var(--danger-color);
+            text-shadow: none;
+            font-weight: 700;
+            background: rgba(239, 68, 68, 0.1);
+            padding: 24px;
+            border-radius: 16px;
+            display: inline-block;
+            min-width: 200px;
         }
 
         /* Feedback Report */
         .metric-card {
-            border: 1px solid var(--primary-color);
-            padding: 15px;
-            margin-bottom: 15px;
-            border-radius: 8px;
-            background-color: #f8ffff;
+            border: 2px solid #e2e8f0;
+            padding: 20px;
+            margin-bottom: 16px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            box-shadow: var(--shadow-sm);
+            transition: all 0.3s ease;
         }
-        .metric-card h3 { color: #555; margin-top: 0; font-size: 1.2em; }
-        .metric-card strong { color: var(--primary-color); }
+
+        .metric-card:hover {
+            border-color: var(--primary-color);
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+
+        .metric-card h3 { 
+            color: var(--text-color); 
+            margin-top: 0; 
+            font-size: 1.2em;
+            font-weight: 700;
+        }
+        .metric-card strong { 
+            color: var(--primary-color);
+            font-weight: 700;
+        }
 
         /* Navigation Bar */
         .nav-bar {
             display: flex;
             justify-content: space-around;
-            padding: 10px 0;
-            border-top: 1px solid var(--secondary-color);
-            background-color: white;
+            padding: 12px 0 calc(12px + env(safe-area-inset-bottom));
+            border-top: 1px solid #e2e8f0;
+            background: #ffffff;
             position: sticky;
             bottom: 0;
             z-index: 10;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
         }
 
         .nav-bar a {
             text-decoration: none;
-            color: var(--primary-color);
-            font-size: 0.9em;
-            padding: 5px 10px;
-            border-radius: 4px;
-            transition: background-color 0.2s;
+            color: var(--text-light);
+            font-size: 0.85em;
+            padding: 8px 16px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            position: relative;
         }
-        .nav-bar a:hover {
-            background-color: var(--secondary-color);
+
+        .nav-bar a::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 3px;
+            background: var(--primary-color);
+            border-radius: 0 0 3px 3px;
+            transition: width 0.3s ease;
+        }
+
+        .nav-bar a:hover,
+        .nav-bar a:active {
+            color: var(--primary-color);
+            background: var(--secondary-color);
+        }
+
+        .nav-bar a:hover::before {
+            width: 60%;
         }
         
         /* Modal Overlay for AI Points */
@@ -252,30 +557,50 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.6);
-            display: none; /* Hidden by default */
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+            display: none;
             justify-content: center;
             align-items: center;
-            z-index: 20;
+            z-index: 100;
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
         }
 
         .modal-content {
-            background-color: white;
-            padding: 25px;
-            border-radius: 12px;
+            background: #ffffff;
+            padding: 32px;
+            border-radius: 20px;
             width: 90%;
             max-width: 450px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            box-shadow: var(--shadow-xl);
             max-height: 80vh;
             overflow-y: auto;
             position: relative;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
         }
         
         .modal-content h3 {
-            color: var(--calm-color);
-            border-bottom: 1px dashed var(--secondary-color);
-            padding-bottom: 10px;
+            color: var(--primary-color);
+            border-bottom: 2px solid var(--secondary-color);
+            padding-bottom: 12px;
             margin-top: 0;
+            font-weight: 700;
         }
 
         #modal-points-list {
@@ -285,31 +610,101 @@
             margin-top: 20px;
         }
         #modal-points-list li {
-            margin-bottom: 15px;
-            padding-left: 15px;
+            margin-bottom: 16px;
+            padding: 12px 16px 12px 40px;
+            background: #f8fafc;
+            border-radius: 12px;
             position: relative;
+            border-left: 3px solid var(--primary-color);
+            transition: all 0.2s ease;
         }
+
+        #modal-points-list li:hover {
+            background: var(--secondary-color);
+            transform: translateX(4px);
+        }
+
         #modal-points-list li::before {
-            content: '👉'; /* Use an emoji bullet */
+            content: '💡';
             position: absolute;
-            left: 0;
-            color: var(--primary-color);
-            font-size: 0.8em;
-            top: 0;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.2em;
         }
         
         /* Loading Spinner */
         .spinner {
-            border: 4px solid rgba(0, 0, 0, 0.1);
+            border: 4px solid rgba(99, 102, 241, 0.1);
             border-left-color: var(--primary-color);
             border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
+            width: 40px;
+            height: 40px;
+            animation: spin 0.8s linear infinite;
             margin: 20px auto;
         }
         @keyframes spin {
             to { transform: rotate(360deg); }
+        }
+
+        /* Additional polish */
+        small {
+            display: block;
+            margin-top: 8px;
+            color: var(--text-light);
+            font-size: 0.85em;
+            line-height: 1.5;
+        }
+
+        #speech-transcript {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+        }
+
+        #recording-status {
+            background: rgba(239, 68, 68, 0.1);
+            padding: 12px;
+            border-radius: 12px;
+            border: 2px solid rgba(239, 68, 68, 0.2);
+        }
+
+        /* Smooth scroll */
+        main {
+            scroll-behavior: smooth;
+        }
+
+        /* Selection color */
+        ::selection {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        /* Scrollbar styling */
+        main::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        main::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        main::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 4px;
+        }
+
+        main::-webkit-scrollbar-thumb:hover {
+            background: var(--primary-dark);
+        }
+
+        /* Focus visible for accessibility */
+        button:focus-visible,
+        input:focus-visible,
+        select:focus-visible,
+        textarea:focus-visible {
+            outline: 3px solid var(--primary-color);
+            outline-offset: 2px;
         }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
@@ -327,7 +722,7 @@
             <h2>📊 Performance Dashboard</h2>
             <div class="dashboard-metric">
                 <h3>Overall Progress</h3>
-                <p>AI Score Trend: **+0.5 Points** (Last 5 Sessions)</p>
+                <p style="color: var(--text-light); margin-bottom: 0;">AI Score Trend: <strong style="color: var(--calm-color);">+0.5 Points</strong> (Last 5 Sessions)</p>
                 <div class="graph-placeholder" id="progress-chart">
                     <div class="bar" style="height: 40%"></div>
                     <div class="bar" style="height: 55%"></div>
@@ -339,7 +734,7 @@
 
             <div class="dashboard-metric">
                 <h3>Anxiety & Confidence</h3>
-                <p>Anxiety (Pre) vs. Confidence (Post)</p>
+                <p style="color: var(--text-light); margin-bottom: 0;">Anxiety (Pre) vs. Confidence (Post)</p>
                 <div class="graph-placeholder" id="anxiety-chart">
                     <div class="bar danger" style="height: 80%"></div>
                     <div class="bar alt" style="height: 40%"></div>
@@ -349,7 +744,7 @@
                 </div>
             </div>
 
-            <button class="btn-primary" onclick="showView('calming-setup')">🧘‍♀️ Feeling Anxious? Start Calming</button>
+            <button class="btn-primary" onclick="showView('calming-setup')" style="margin-top: 0;">🧘‍♀️ Feeling Anxious? Start Calming</button>
             <button class="btn-primary" onclick="showView('practice-setup')">🎤 New Practice Session</button>
         </section>
 
@@ -382,18 +777,19 @@
             <div class="input-group">
                 <label for="pre-anxiety-calm">Anxiety Level (1-10)</label>
                 <input type="range" id="pre-anxiety-calm" min="1" max="10" value="5" oninput="document.getElementById('anxiety-output-calm').textContent=this.value">
-                <p style="text-align: center;">Current Level: <strong id="anxiety-output-calm">5</strong></p>
+                <p style="text-align: center; margin-top: 12px; font-size: 1.1em;">Current Level: <strong id="anxiety-output-calm" style="color: var(--primary-color); font-size: 1.3em;">5</strong></p>
             </div>
 
             <button class="btn-primary" onclick="startCalming()">BEGIN CALMING</button>
         </section>
         
         <section id="active-calming" style="display: none;" data-view="active-calming">
-            <h2 style="color: white;">✨ Focus and Breathe</h2>
+            <h2 style="color: white; border: none;">✨ Focus and Breathe</h2>
+            <style>#active-calming h2::after { display: none; }</style>
             <div id="calming-visual">INHALE</div>
             <p class="calming-state" id="calming-instructions">Focus on the prompt.</p>
-            <div id="calming-timer" style="font-size: 1.5em;">03:00</div>
-            <button class="btn-secondary" style="width: 50%;" onclick="stopCalming()">END SESSION</button>
+            <div id="calming-timer" style="font-size: 1.8em; font-weight: 600; margin: 20px 0;">03:00</div>
+            <button class="btn-secondary" style="width: 50%; background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.4); color: white; backdrop-filter: blur(10px);" onclick="stopCalming()">END SESSION</button>
         </section>
 
 
@@ -405,6 +801,7 @@
                 <select id="practice-type">
                     <option value="debate">Debate (Argumentative)</option>
                     <option value="defense">Oral Defense (Explanatory/Q&A)</option>
+                    <option value="ai-debate">🤖 AI Real-Time Debate Practice</option>
                 </select>
             </div>
 
@@ -417,7 +814,6 @@
             <div class="input-group" id="argument-generator">
                 <label>Argument Generation</label>
                 <button class="btn-secondary" onclick="generateArgumentPoints()">✨ Generate Debate Points (Opens Modal)</button>
-                <small style="color: #777;">**REQUIRED**: You must enter a valid Google AI API Key in the **Settings** panel for this feature to work.</small>
             </div>
 
 
@@ -434,7 +830,7 @@
              <div class="input-group">
                 <label for="pre-anxiety-practice">Anxiety Level (1-10)</label>
                 <input type="range" id="pre-anxiety-practice" min="1" max="10" value="6" oninput="document.getElementById('anxiety-output-practice').textContent=this.value">
-                <p style="text-align: center;">Current Level: <strong id="anxiety-output-practice">6</strong></p>
+                <p style="text-align: center; margin-top: 12px; font-size: 1.1em;">Current Level: <strong id="anxiety-output-practice" style="color: var(--primary-color); font-size: 1.3em;">6</strong></p>
             </div>
 
             <button class="btn-primary" onclick="startPractice()">START PRACTICE SESSION</button>
@@ -444,15 +840,22 @@
             <h2>🎙️ Practice in Progress</h2>
             <div id="countdown-display-practice">05:00</div>
             <p>Topic: <strong id="current-topic">Loading Topic...</strong></p>
-            <div id="recording-status" style="text-align: center; color: var(--danger-color); margin: 10px 0;">
-                🔴 <span id="mic-status">Microphone is ready. Click "Stop" to finish recording.</span>
+            <div id="recording-status" style="text-align: center; color: var(--danger-color); margin: 16px 0; font-weight: 600;">
+                <span style="display: inline-block; width: 12px; height: 12px; background: var(--danger-color); border-radius: 50%; margin-right: 8px; animation: pulse 2s infinite;"></span>
+                <span id="mic-status">Microphone is ready. Click "Stop" to finish recording.</span>
             </div>
-            <div id="speech-transcript" style="min-height: 50px; padding: 10px; border: 1px dashed #ccc; border-radius: 6px; margin-top: 15px; font-size: 0.9em; background: #f9f9f9;">
-                **Transcript will appear here as you speak.**
+            <style>
+                @keyframes pulse {
+                    0%, 100% { opacity: 1; transform: scale(1); }
+                    50% { opacity: 0.5; transform: scale(1.2); }
+                }
+            </style>
+            <div id="speech-transcript" style="min-height: 80px; padding: 16px; margin-top: 20px; font-size: 0.95em; line-height: 1.6;">
+                <em style="color: var(--text-light);">Transcript will appear here as you speak...</em>
             </div>
 
-            <textarea id="notes-area" placeholder="Optional bullet-point notes here..." rows="5" style="width: 100%; margin-top: 15px; display: none;"></textarea>
-            <small style="color: var(--danger-color);">Notifications are locked during this session.</small>
+            <textarea id="notes-area" placeholder="Optional bullet-point notes here..." rows="5" style="width: 100%; margin-top: 20px; display: none; padding: 14px 16px; border: 2px solid #e2e8f0; border-radius: 12px; font-family: var(--font-family); resize: vertical;"></textarea>
+            <small style="color: var(--text-light); margin-top: 12px; display: block; text-align: center; font-size: 0.85em;">🔒 Notifications are locked during this session</small>
 
             <button class="btn-primary" onclick="stopPractice()">STOP / END DEFENSE</button>
         </section>
@@ -464,7 +867,7 @@
             <div class="input-group">
                 <label for="post-confidence">Confidence Rating (1-10)</label>
                 <input type="range" id="post-confidence" min="1" max="10" value="7" oninput="document.getElementById('confidence-output').textContent=this.value">
-                <p style="text-align: center;">Current Confidence: <strong id="confidence-output">7</strong></p>
+                <p style="text-align: center; margin-top: 12px; font-size: 1.1em;">Current Confidence: <strong id="confidence-output" style="color: var(--calm-color); font-size: 1.3em;">7</strong></p>
             </div>
             
             <button class="btn-primary" onclick="showFeedback()">GET AI FEEDBACK</button>
@@ -473,7 +876,7 @@
 
         <section id="feedback-report" style="display: none;" data-view="feedback">
             <h2>🤖 AI Feedback Report</h2>
-            <p style="color: #777; font-style: italic; border-bottom: 1px dashed #eee; padding-bottom: 10px;">AI feedback is advisory only. See the disclaimer in settings.</p>
+            <p style="color: var(--text-light); font-style: italic; border-bottom: 2px dashed #e2e8f0; padding-bottom: 16px; margin-bottom: 24px;">AI feedback is advisory only. See the disclaimer in settings.</p>
 
             <div id="ai-metrics">
                 
@@ -501,8 +904,8 @@
 
             <div class="dashboard-metric">
                 <h3>Session Summary</h3>
-                <p>Pre-Anxiety: <strong id="report-anxiety"></strong>/10 | Post-Confidence: <strong id="report-confidence"></strong>/10</p>
-                <p>Total Transcript Words: <strong id="report-word-count">0</strong></p>
+                <p style="margin-bottom: 8px;">Pre-Anxiety: <strong id="report-anxiety" style="color: var(--danger-color);"></strong>/10 | Post-Confidence: <strong id="report-confidence" style="color: var(--calm-color);"></strong>/10</p>
+                <p style="margin-bottom: 0;">Total Transcript Words: <strong id="report-word-count" style="color: var(--primary-color);">0</strong></p>
             </div>
 
             <button class="btn-secondary" onclick="exportToPDF()">Export Report (PDF)</button>
@@ -557,7 +960,7 @@
             </div>
             <ul id="modal-points-list">
                 </ul>
-            <button class="btn-primary" onclick="document.getElementById('ai-argument-modal').style.display='none'">Close & Start Preparation</button>
+            <button class="btn-primary" onclick="document.getElementById('ai-argument-modal').style.display='none'">Close & Add to Notes Overlay</button>
         </div>
     </div>
 
@@ -581,6 +984,61 @@
     let sessionStartTime;
     let finalWPM = 0;
     let fillerCount = 0;
+    let fillerDetails = [];
+    let generatedDebatePoints = ""; // Store generated debate points for notes overlay
+    let isPracticeActive = false; // Track if practice session is active
+    let isAiDebateMode = false; // Track if AI debate mode is active
+    let debateConversation = []; // Store conversation history for AI debate
+    let isAiSpeaking = false; // Track if AI is currently speaking
+    let speechSynthesis = window.speechSynthesis; // Text-to-speech API
+
+    // Central list of common filler words for detection
+    const FILLER_WORDS = [
+        "um", "uh", "er", "err", "ah", "uhm",
+        "like", "you know", "i mean", "sort of", "kind of",
+        "basically", "actually", "literally", "right", "okay", "ok", "so"
+    ];
+
+    // Detect filler words in a transcript (returns total count and per‑word breakdown)
+    function detectFillerWords(transcript) {
+        const text = (transcript || "").toLowerCase();
+        const singleWordFillers = FILLER_WORDS.filter(w => !w.includes(" "));
+        const multiWordFillers = FILLER_WORDS.filter(w => w.includes(" "));
+
+        // Split into tokens and strip leading/trailing punctuation so "like," matches "like"
+        const words = text
+            .split(/\s+/)
+            .map(w => w.replace(/^[^a-z]+|[^a-z]+$/gi, "")) // strip non‑letters at edges
+            .filter(Boolean);
+        const details = [];
+        const byType = {};
+
+        // Single‑word fillers
+        words.forEach((w, idx) => {
+            if (singleWordFillers.includes(w)) {
+                details.push({ word: w, index: idx });
+                byType[w] = (byType[w] || 0) + 1;
+            }
+        });
+
+        // Multi‑word fillers (simple sliding window search)
+        multiWordFillers.forEach(phrase => {
+            const parts = phrase.split(" ");
+            for (let i = 0; i <= words.length - parts.length; i++) {
+                const window = words.slice(i, i + parts.length).join(" ");
+                if (window === phrase) {
+                    details.push({ word: phrase, index: i });
+                    byType[phrase] = (byType[phrase] || 0) + 1;
+                }
+            }
+        });
+
+        return {
+            total: details.length,
+            details,
+            byType
+        };
+    }
 
     // --- Global Settings Variables ---
     let appSettings = {
@@ -592,7 +1050,16 @@
     // --- Core View Switching Logic ---
     function showView(viewId) {
         if (viewId !== 'active-practice' && recognition) {
-            recognition.stop();
+            isPracticeActive = false; // Mark practice as inactive when leaving
+            isAiDebateMode = false; // Exit AI debate mode
+            try {
+                // Only stop if actually running to avoid permission issues
+                if (recognition.state === 'listening' || recognition.state === 'starting') {
+                    recognition.stop();
+                }
+            } catch (e) {
+                // Silently handle - recognition may already be stopped
+            }
         }
 
         const sections = document.querySelectorAll('section[data-view]');
@@ -814,63 +1281,97 @@
             const userQuery = `You must use the EXACT topic below and do NOT change or rename it.
 TOPIC: "${topic}"
 
-For THIS EXACT debate topic only, generate exactly 4 distinct, strong argument points:
-- 2 points supporting the topic (AFFIRMATIVE)
-- 2 points opposing the topic (NEGATIVE)
+For THIS EXACT debate topic, generate comprehensive debate points following this EXACT format with all 9 sections:
 
-Format STRICTLY as a simple list, one point per line, starting each line with a hyphen and a side label, like:
-- [AFFIRMATIVE] point text here
-- [NEGATIVE] point text here
+1. Clear Stand / Claim
+State your position clearly at the start.
+Example: "This study proves that…" or "We strongly support the idea that…"
+👉 If this is for a research oral defense, this is your thesis or research claim.
 
-Do not include any introductory or concluding text, headings, or numbering.`;
+2. Background / Context
+Explain why the topic matters.
+Define key terms briefly.
+Show the problem your topic addresses.
+Example: "This issue is important in the Philippines because…"
+
+3. Evidence / Support
+Facts, data, examples, or research findings.
+For research defense: Data results, Observations, Experiments or surveys
+For debate: Statistics, Real-life examples, Expert opinions
+⚠️ Claims without evidence are weak.
+
+4. Explanation (Analysis)
+Don't just present facts—explain how they prove your point.
+Connect evidence back to your claim.
+Formula: Evidence → Explanation → Link to claim
+
+5. Methodology / Process (for oral defense)
+Explain how you conducted the study: Materials, Procedure, Variables
+Justify why your method is valid.
+Address: "Why did you choose this method?"
+
+6. Counterarguments & Rebuttal (very important in debates)
+Acknowledge the opposing side.
+Explain why their argument is weaker or incorrect.
+Example: "Some may argue that…, however this fails to consider…"
+This shows critical thinking.
+
+7. Limitations & Weaknesses (oral defense)
+Admit realistic limitations.
+Show how these do not invalidate the study.
+Judges respect honesty more than pretending perfection.
+
+8. Conclusion / Impact
+Restate your main point.
+Explain the significance or application: Who benefits? Why it matters in real life? Possible future improvements
+
+9. Delivery & Confidence (Non-content but required)
+Clear voice, Eye contact, Logical flow, Calm when questioned
+Even strong content fails with poor delivery.
+
+Generate specific, relevant content for each section based on the topic "${topic}". Make it practical and usable.`;
             const systemPrompt = appSettings.aiPrompt; 
 
             const result = await callGeminiApi(userQuery, systemPrompt);
             const rawText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
 
-            // Hide loading elements
+            // Store the generated points for notes overlay
+            generatedDebatePoints = rawText || "";
+
+            // Hide loading elements and display in modal
             contentArea.style.display = 'none';
-
-            if (rawText) {
-                // Parse lines starting with a hyphen
-                const points = rawText.split('\n')
-                    .map(line => line.trim())
-                    .filter(line => line.startsWith('-'));
-                
-                if (points.length === 0) {
-                    list.innerHTML = '<li><small style="color: orange;">AI provided a response, but it could not be parsed into a list. Please check the custom prompt in settings.</small></li>';
-                    return;
-                }
-
-                points.forEach(point => {
-                    const li = document.createElement('li');
-                    // Remove leading hyphen and space
-                    li.innerHTML = point.substring(1).trim(); 
-                    list.appendChild(li);
-                });
-            } else {
-                list.innerHTML = '<li><small style="color: red;">AI response was empty. Try a different topic or check the custom prompt.</small></li>';
-            }
-        } catch (error) {
-            console.error("AI Argument Generation Error:", error);
-            contentArea.style.display = 'block';
-            contentArea.innerHTML = `<p style="text-align: center; color: var(--danger-color);">⚠️ Connection Error: ${error.message}</p><p style="text-align: center; color: #555;">Please verify your API key is correct and try again.</p>`;
-            list.innerHTML = '';
+            
+            // Format and display in modal list
+            const formattedText = rawText.split('\n').filter(line => line.trim().length > 0);
+            formattedText.forEach(line => {
+                const li = document.createElement('li');
+                li.textContent = line.trim();
+                list.appendChild(li);
+            });
+        } catch (e) {
+            contentArea.innerHTML = "Error generating points.";
+            generatedDebatePoints = "";
         }
     }
 
-    // FIX: Enhanced Voice Recognition
+    // FIX: Enhanced Voice Recognition with Auto-Restart (Reuse instance to avoid permission prompts)
     function startRecording() {
         if (!SpeechRecognition) return;
-        recognition = new SpeechRecognition();
-        recognition.continuous = true;
-        recognition.interimResults = true; // Essential to detect sounds before they are filtered
-        recognition.lang = 'en-US';
-
-        speechTranscript = "";
-        sessionStartTime = Date.now();
-
-        recognition.onresult = function(event) {
+        
+        // Reuse existing recognition instance if available and not in AI debate mode
+        if (recognition && !isAiDebateMode) {
+            try {
+                if (recognition.state === 'idle' || recognition.state === undefined) {
+                    recognition.start();
+                    return;
+                }
+            } catch (e) {
+                // If reuse fails, create new instance
+            }
+        }
+        
+        // Store handlers for reuse
+        const resultHandler = function(event) {
             let interim = '';
             for (let i = event.resultIndex; i < event.results.length; i++) {
                 const trans = event.results[i][0].transcript;
@@ -881,15 +1382,115 @@ Do not include any introductory or concluding text, headings, or numbering.`;
                 `<p style="color:#333">${speechTranscript}</p><p style="color:#999">${interim}</p>`;
         };
 
-        recognition.start();
+        const endHandler = function() {
+            if (isPracticeActive && !isAiDebateMode) {
+                // Only auto-restart if still active and not in AI debate mode
+                setTimeout(function() {
+                    if (isPracticeActive && !isAiDebateMode && recognition) {
+                        try {
+                            // Check if recognition is already running
+                            if (recognition.state === 'idle' || recognition.state === undefined) {
+                                recognition.start();
+                            }
+                        } catch (e) {
+                            // Silently handle - don't recreate to avoid permission prompts
+                            console.log("Recognition already active or permission issue");
+                        }
+                    }
+                }, 100);
+            }
+        };
+
+        const errorHandler = function(event) {
+            // Only log errors, don't auto-restart to avoid permission prompts
+            if (event.error === 'not-allowed') {
+                console.error("Microphone permission denied");
+                return;
+            }
+            if (event.error !== 'no-speech' && event.error !== 'aborted' && isPracticeActive && !isAiDebateMode) {
+                // Only restart on specific errors, and only if recognition is idle
+                setTimeout(function() {
+                    if (isPracticeActive && !isAiDebateMode && recognition) {
+                        try {
+                            if (recognition.state === 'idle' || recognition.state === undefined) {
+                                recognition.start();
+                            }
+                        } catch (e) {
+                            // Don't recreate - just log
+                            console.log("Recognition restart skipped to avoid permission prompt");
+                        }
+                    }
+                }, 500);
+            }
+        };
+
+        // Only create new instance if we don't have one or it's in a bad state
+        if (!recognition || recognition.state === 'stopped') {
+            recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = 'en-US';
+            recognition.onresult = resultHandler;
+            recognition.onend = endHandler;
+            recognition.onerror = errorHandler;
+        } else {
+            // Reuse existing instance and update handlers
+            recognition.onresult = resultHandler;
+            recognition.onend = endHandler;
+            recognition.onerror = errorHandler;
+        }
+
+        if (speechTranscript === "") {
+            sessionStartTime = Date.now();
+        }
+
+        try {
+            // Only start if not already running
+            if (recognition.state === 'idle' || recognition.state === undefined) {
+                recognition.start();
+            }
+        } catch (e) {
+            console.error("Failed to start recognition:", e);
+        }
     }
 
     function startPractice() {
+        const practiceType = document.getElementById('practice-type').value;
         const duration = parseInt(document.getElementById('timer-duration').value) * 60;
         practiceSecondsRemaining = duration;
         // Sync the visible practice topic with the current topic input
         const topic = document.getElementById('topic').value.trim();
         document.getElementById('current-topic').textContent = topic || "Untitled topic";
+        
+        // Reset transcript for new session
+        speechTranscript = "";
+        
+        // Check if AI Debate mode
+        if (practiceType === 'ai-debate') {
+            isAiDebateMode = true;
+            debateConversation = []; // Reset conversation
+            startAiDebate(topic);
+            return;
+        } else {
+            isAiDebateMode = false;
+        }
+        
+        // Set practice as active
+        isPracticeActive = true;
+        
+        // Handle notes overlay
+        const notesToggle = document.getElementById('notes-toggle').checked;
+        const notesArea = document.getElementById('notes-area');
+        if (notesToggle) {
+            notesArea.style.display = 'block';
+            // Populate with generated debate points if available
+            if (generatedDebatePoints) {
+                notesArea.value = generatedDebatePoints;
+            }
+        } else {
+            notesArea.style.display = 'none';
+        }
+        
         showView('active-practice');
         startRecording();
 
@@ -904,18 +1505,318 @@ Do not include any introductory or concluding text, headings, or numbering.`;
 
     function stopPractice() {
         clearInterval(practiceTimer);
-        if (recognition) recognition.stop();
+        isPracticeActive = false; // Mark practice as inactive
+        isAiDebateMode = false; // Exit AI debate mode
+        
+        // Stop AI speech if speaking
+        if (speechSynthesis.speaking) {
+            speechSynthesis.cancel();
+        }
+        
+        if (recognition) {
+            try {
+                recognition.stop();
+                recognition.onend = null; // Remove the auto-restart handler
+                recognition.onerror = null; // Remove error handler
+            } catch (e) {
+                console.error("Error stopping recognition:", e);
+            }
+        }
         
         // FIX: Calculate Analytics
         const durationMin = (Date.now() - sessionStartTime) / 60000;
         const words = speechTranscript.trim().split(/\s+/).length;
         finalWPM = Math.round(words / (durationMin || 1));
-        
-        // Local detection of fillers as secondary metric
-        const fillersFound = speechTranscript.match(/\b(um|uh|ah|like|err)\b/gi) || [];
-        fillerCount = fillersFound.length;
+
+        // Local detection of fillers as secondary metric (client‑side only)
+        const fillerResult = detectFillerWords(speechTranscript);
+        console.log("Full transcript for filler detection:", speechTranscript);
+        console.log("Filler detection result:", fillerResult);
+        fillerCount = fillerResult.total;
+        fillerDetails = fillerResult.details;
 
         showView('post-test');
+    }
+    
+    // AI Debate Mode Functions
+    async function startAiDebate(topic) {
+        if (!appSettings.apiKey) {
+            alert("🚨 API Key is missing! Please enter it in Settings before starting AI Debate.");
+            return;
+        }
+        
+        isPracticeActive = true;
+        debateConversation = [];
+        speechTranscript = "";
+        sessionStartTime = Date.now();
+        
+        // Initialize conversation with topic
+        debateConversation.push({
+            role: 'system',
+            text: `You are a debate opponent. The debate topic is: "${topic}". You should take the OPPOSING position and challenge the user's arguments. Be concise (2-3 sentences max), direct, and make strong counterarguments. Wait for the user to speak first, then respond.`
+        });
+        
+        showView('active-practice');
+        
+        // Update UI for AI debate mode
+        document.getElementById('mic-status').textContent = '🎤 AI Debate Mode - Speak your argument...';
+        document.getElementById('speech-transcript').innerHTML = '<div id="debate-conversation" style="max-height: 300px; overflow-y: auto;"></div>';
+        
+        // Start with AI greeting
+        const greeting = `Let's debate: ${topic}. I'll be taking the opposing position. What's your opening argument?`;
+        await speakAiResponse(greeting);
+        addToDebateConversation('AI', greeting);
+        
+        // Start listening for user input
+        startAiDebateRecording();
+        
+        // Start timer
+        const duration = parseInt(document.getElementById('timer-duration').value) * 60;
+        practiceSecondsRemaining = duration;
+        practiceTimer = setInterval(() => {
+            practiceSecondsRemaining--;
+            const m = Math.floor(practiceSecondsRemaining / 60);
+            const s = practiceSecondsRemaining % 60;
+            document.getElementById('countdown-display-practice').textContent = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+            if (practiceSecondsRemaining <= 0) stopPractice();
+        }, 1000);
+    }
+    
+    function startAiDebateRecording() {
+        if (!SpeechRecognition) return;
+        
+        const resultHandler = function(event) {
+            let interim = '';
+            let finalText = '';
+            
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const trans = event.results[i][0].transcript;
+                if (event.results[i].isFinal) {
+                    finalText += trans + " ";
+                    speechTranscript += trans + " ";
+                } else {
+                    interim += trans;
+                }
+            }
+            
+            // Update display
+            updateDebateDisplay(interim);
+            
+            // If we have final text and AI is not speaking, process it
+            if (finalText.trim() && !isAiSpeaking && isAiDebateMode) {
+                processUserArgument(finalText.trim());
+            }
+        };
+        
+        const endHandler = function() {
+            if (isAiDebateMode && isPracticeActive && !isAiSpeaking) {
+                setTimeout(() => {
+                    if (isAiDebateMode && isPracticeActive && !isAiSpeaking && recognition) {
+                        try {
+                            // Only restart if recognition is idle (not already running)
+                            if (recognition.state === 'idle' || recognition.state === undefined) {
+                                recognition.start();
+                            }
+                        } catch (e) {
+                            // Don't recreate - just log to avoid permission prompts
+                            console.log("AI debate recognition already active");
+                        }
+                    }
+                }, 100);
+            }
+        };
+        
+        const errorHandler = function(e) {
+            // Don't auto-restart on permission errors
+            if (e.error === 'not-allowed') {
+                console.error("Microphone permission denied");
+                return;
+            }
+            if (e.error !== 'no-speech' && e.error !== 'aborted' && isAiDebateMode && !isAiSpeaking) {
+                setTimeout(() => {
+                    if (isAiDebateMode && !isAiSpeaking && recognition) {
+                        try {
+                            // Only restart if idle
+                            if (recognition.state === 'idle' || recognition.state === undefined) {
+                                recognition.start();
+                            }
+                        } catch (err) {
+                            console.log("AI debate recognition restart skipped");
+                        }
+                    }
+                }, 500);
+            }
+        };
+        
+        // Reuse existing recognition instance if available
+        if (!recognition || recognition.state === 'stopped') {
+            recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = 'en-US';
+        }
+        
+        // Update handlers
+        recognition.onresult = resultHandler;
+        recognition.onend = endHandler;
+        recognition.onerror = errorHandler;
+        
+        try {
+            // Only start if not already running
+            if (recognition.state === 'idle' || recognition.state === undefined) {
+                recognition.start();
+            }
+        } catch (e) {
+            console.error("Failed to start AI debate recognition:", e);
+        }
+    }
+    
+    async function processUserArgument(userText) {
+        if (!userText.trim() || !isAiDebateMode) return;
+        
+        // Add user argument to conversation
+        addToDebateConversation('You', userText);
+        debateConversation.push({ role: 'user', text: userText });
+        
+        // Update status
+        document.getElementById('mic-status').textContent = '🤖 AI is thinking and responding...';
+        
+        // Stop recognition while AI processes
+        if (recognition) {
+            try {
+                recognition.stop();
+            } catch (e) {}
+        }
+        
+        try {
+            // Generate AI response
+            const conversationContext = debateConversation
+                .filter(msg => msg.role !== 'system')
+                .map(msg => `${msg.role === 'user' ? 'User' : 'AI'}: ${msg.text}`)
+                .join('\n');
+            
+            const userQuery = `Debate Topic: "${document.getElementById('current-topic').textContent}"
+
+Conversation so far:
+${conversationContext}
+
+You are the debate opponent (OPPOSING side). The user just made an argument. Respond with a strong counterargument in 2-3 sentences. Be direct, challenging, and make them defend their position. Keep it concise and debate-like.`;
+            
+            const systemPrompt = appSettings.aiPrompt + " You are a skilled debater who challenges arguments effectively.";
+            
+            const result = await callGeminiApi(userQuery, systemPrompt);
+            const aiResponse = result?.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "I need to think about that. Can you elaborate?";
+            
+            // Add AI response to conversation
+            debateConversation.push({ role: 'assistant', text: aiResponse });
+            
+            // Speak the response
+            await speakAiResponse(aiResponse);
+            addToDebateConversation('AI', aiResponse);
+            
+            // Resume listening
+            if (isAiDebateMode && isPracticeActive) {
+                setTimeout(() => {
+                    if (isAiDebateMode && !isAiSpeaking) {
+                        startAiDebateRecording();
+                    }
+                }, 500);
+            }
+            
+        } catch (e) {
+            console.error("Error processing AI debate response:", e);
+            const errorMsg = "I'm having trouble processing that. Could you repeat your argument?";
+            await speakAiResponse(errorMsg);
+            addToDebateConversation('AI', errorMsg);
+            
+            if (isAiDebateMode && isPracticeActive) {
+                setTimeout(() => {
+                    if (isAiDebateMode && !isAiSpeaking) {
+                        startAiDebateRecording();
+                    }
+                }, 500);
+            }
+        }
+    }
+    
+    function speakAiResponse(text) {
+        return new Promise((resolve) => {
+            if (!speechSynthesis) {
+                resolve();
+                return;
+            }
+            
+            isAiSpeaking = true;
+            speechSynthesis.cancel(); // Cancel any ongoing speech
+            
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.rate = 1.0;
+            utterance.pitch = 1.0;
+            utterance.volume = 1.0;
+            utterance.lang = 'en-US';
+            
+            utterance.onend = () => {
+                isAiSpeaking = false;
+                document.getElementById('mic-status').textContent = '🎤 Your turn - Speak your counterargument...';
+                resolve();
+            };
+            
+            utterance.onerror = () => {
+                isAiSpeaking = false;
+                document.getElementById('mic-status').textContent = '🎤 Your turn - Speak your counterargument...';
+                resolve();
+            };
+            
+            speechSynthesis.speak(utterance);
+        });
+    }
+    
+    function addToDebateConversation(speaker, text) {
+        const conversationDiv = document.getElementById('debate-conversation');
+        if (!conversationDiv) return;
+        
+        const messageDiv = document.createElement('div');
+        messageDiv.style.marginBottom = '12px';
+        messageDiv.style.padding = '12px';
+        messageDiv.style.borderRadius = '8px';
+        
+        if (speaker === 'You') {
+            messageDiv.style.background = 'linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%)';
+            messageDiv.style.marginLeft = '20px';
+            messageDiv.innerHTML = `<strong style="color: var(--primary-color);">You:</strong> ${text}`;
+        } else {
+            messageDiv.style.background = 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)';
+            messageDiv.style.marginRight = '20px';
+            messageDiv.innerHTML = `<strong style="color: var(--calm-color);">🤖 AI Opponent:</strong> ${text}`;
+        }
+        
+        conversationDiv.appendChild(messageDiv);
+        conversationDiv.scrollTop = conversationDiv.scrollHeight;
+    }
+    
+    function updateDebateDisplay(interim) {
+        const conversationDiv = document.getElementById('debate-conversation');
+        if (!conversationDiv) return;
+        
+        // Remove any existing interim display
+        const existingInterim = conversationDiv.querySelector('.interim-text');
+        if (existingInterim) {
+            existingInterim.remove();
+        }
+        
+        if (interim.trim()) {
+            const interimDiv = document.createElement('div');
+            interimDiv.className = 'interim-text';
+            interimDiv.style.marginBottom = '12px';
+            interimDiv.style.padding = '12px';
+            interimDiv.style.borderRadius = '8px';
+            interimDiv.style.background = 'linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%)';
+            interimDiv.style.marginLeft = '20px';
+            interimDiv.style.opacity = '0.6';
+            interimDiv.innerHTML = `<strong style="color: var(--primary-color);">You (speaking...):</strong> ${interim}`;
+            conversationDiv.appendChild(interimDiv);
+            conversationDiv.scrollTop = conversationDiv.scrollHeight;
+        }
     }
     
     // --- 4. Feedback Logic ---
@@ -962,6 +1863,24 @@ Do not include any introductory or concluding text, headings, or numbering.`;
         document.getElementById('report-anxiety').textContent = currentAnxiety;
         document.getElementById('report-confidence').textContent = currentConfidence;
         document.getElementById('report-word-count').textContent = speechTranscript.split(/\s+/).length;
+        
+        // Show quick local filler summary immediately, even before AI finishes
+        if (typeof fillerCount === "number") {
+            // Build a short breakdown string like: "Total 5 (um×2, like×3)"
+            const breakdownMap = {};
+            (fillerDetails || []).forEach(f => {
+                const key = f.word;
+                breakdownMap[key] = (breakdownMap[key] || 0) + 1;
+            });
+            const breakdownText = Object.entries(breakdownMap)
+                .map(([w, c]) => `${w}×${c}`)
+                .join(", ");
+            const summary = breakdownText
+                ? `Local detection: ${fillerCount} filler words found (${breakdownText}).`
+                : "Local detection: no filler words detected.";
+            document.getElementById('ai-filler-score').textContent = `${fillerCount}`;
+            document.getElementById('ai-filler-explanation').innerHTML = `<p>${summary}</p><p><em>AI analysis will refine this estimate.</em></p>`;
+        }
         
         showView('feedback-report');
         await getAiSpeechFeedback();
